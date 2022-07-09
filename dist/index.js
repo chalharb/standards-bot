@@ -103,20 +103,24 @@ function run() {
             const pr_title = pullRequestData.title;
             core.info(`Validating Pull Request title`);
             // Check if PR title passes regex
-            if (pr_title_regex && !(0, functions_1.validateRegex)(pr_title, pr_title_regex)) {
-                core.setFailed(`Pull Request title "${pr_title}" failed to pass match regex - ${RegExp(pr_title_regex)}`);
-                return;
-            }
-            else {
-                core.info(`Pull Request title "${pr_title}" passed regex - ${pr_title_regex}`);
+            if (pr_title_regex) {
+                if (!(0, functions_1.validateRegex)(pr_title, pr_title_regex)) {
+                    core.setFailed(`Pull Request title "${pr_title}" failed to pass match regex - ${RegExp(pr_title_regex)}`);
+                    return;
+                }
+                else {
+                    core.info(`Pull Request title "${pr_title}" passed regex - ${pr_title_regex}`);
+                }
             }
             // Check if PR title starts with prefix
-            if (pr_title_prefix && !(0, functions_1.validatePrefix)(pr_title, pr_title_prefix)) {
-                core.setFailed(`Pull Request title "${pr_title}" is does not start with ${pr_title_prefix}`);
-                return;
-            }
-            else {
-                core.info(`Pull Request title "${pr_title}" starts with ${pr_title_prefix}`);
+            if (pr_title_prefix) {
+                if (!(0, functions_1.validatePrefix)(pr_title, pr_title_prefix)) {
+                    core.setFailed(`Pull Request title "${pr_title}" is does not start with ${pr_title_prefix}`);
+                    return;
+                }
+                else {
+                    core.info(`Pull Request title "${pr_title}" starts with ${pr_title_prefix}`);
+                }
             }
         }
         catch (error) {
