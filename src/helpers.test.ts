@@ -3,7 +3,7 @@ import {
   validatePrefix,
   validateMaxLength,
   validateMinLength
-} from './functions'
+} from './helpers'
 
 const mockText = 'AB#1234: This is a test message'
 const mockTextLength = mockText.length
