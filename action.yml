@@ -5,7 +5,9 @@ inputs:
   pr-title-regex:
     description: 'Regex to validate the pull request title'
     required: false
-    default: '.+'
+  pr-title-prefix:
+    description: 'Comma separated list that all pull requests must start with'
+    required: false
   github-token:
     description: >
       Personal access token (PAT) used to fetch the repository. The PAT is configured

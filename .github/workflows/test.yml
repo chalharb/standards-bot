@@ -18,6 +18,12 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: ./
+        name: 'Testing Regular Expressions'
         with:
           pr-title-regex: '^(build|chore|feat|fix|docs|refactor|perf|style|test):\s[A-Z]{1}'
+          github-token: ${{ secrets.GH_TOKEN }}
+      - uses: ./
+        name: 'Testing Prefixes'
+        with:
+          pr-title-prefix: 'build,chore,feat,fix,docs,refactor,perf,style,test'
           github-token: ${{ secrets.GH_TOKEN }}

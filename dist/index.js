@@ -13,7 +13,7 @@ function validateRegex(text, pattern) {
 }
 exports.validateRegex = validateRegex;
 function validatePrefix(text, prefix) {
-    return text.startsWith(prefix);
+    return prefix.split(',').some(substr => text.startsWith(substr));
 }
 exports.validatePrefix = validatePrefix;
 function validateMaxLength(text, max_length) {
@@ -83,7 +83,12 @@ function run() {
             }
             core.debug('Fetching input parameters');
             const authToken = core.getInput('github-token');
-            const pr_title_regex = core.getInput('pr-title-regex');
+            const pr_title_regex = core.getInput('pr-title-regex') !== ''
+                ? core.getInput('pr-title-regex')
+                : null;
+            const pr_title_prefix = core.getInput('pr-title-prefix') !== ''
+                ? core.getInput('pr-title-prefix')
+                : null;
             const owner = (_a = github.context.payload.pull_request) === null || _a === void 0 ? void 0 : _a.base.user.login;
             const repo = (_b = github.context.payload.pull_request) === null || _b === void 0 ? void 0 : _b.base.repo.name;
             const pr_number = (_c = github.context.payload.pull_request) === null || _c === void 0 ? void 0 : _c.number;
@@ -98,12 +103,24 @@ function run() {
             const pr_title = pullRequestData.title;
             core.info(`Validating Pull Request title`);
             // Check if PR title passes regex
-            if (!(0, functions_1.validateRegex)(pr_title, pr_title_regex)) {
-                core.setFailed(`Pull Request title "${pr_title}" failed to pass match regex - ${RegExp(pr_title_regex)}`);
-                return;
+            if (pr_title_regex) {
+                if (!(0, functions_1.validateRegex)(pr_title, pr_title_regex)) {
+                    core.setFailed(`Pull Request title "${pr_title}" failed to pass match regex - ${RegExp(pr_title_regex)}`);
+                    return;
+                }
+                else {
+                    core.info(`Pull Request title "${pr_title}" passed regex - ${pr_title_regex}`);
+                }
             }
-            else {
-                core.info(`Pull Request title "${pr_title}" passed regex - ${RegExp(pr_title_regex)}`);
+            // Check if PR title starts with prefix
+            if (pr_title_prefix) {
+                if (!(0, functions_1.validatePrefix)(pr_title, pr_title_prefix)) {
+                    core.setFailed(`Pull Request title "${pr_title}" is does not start with ${pr_title_prefix}`);
+                    return;
+                }
+                else {
+                    core.info(`Pull Request title "${pr_title}" starts with ${pr_title_prefix}`);
+                }
             }
         }
         catch (error) {

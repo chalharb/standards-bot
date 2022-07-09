@@ -3,7 +3,7 @@ export function validateRegex(text: string, pattern: string): boolean {
 }
 
 export function validatePrefix(text: string, prefix: string): boolean {
-  return text.startsWith(prefix)
+  return prefix.split(',').some(substr => text.startsWith(substr))
 }
 
 export function validateMaxLength(text: string, max_length: number): boolean {
