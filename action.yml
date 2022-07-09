@@ -17,6 +17,12 @@ inputs:
   commit-message-regex:
     description: 'Regex to validate the commit messages'
     required: false
+  commit-min-length:
+    description: 'Min length of commit message'
+    required: false
+  commit-max-length:
+    description: 'Max length of commit message'
+    required: false
   github-token:
     description: >
       Personal access token (PAT) used to fetch the repository. The PAT is configured
