@@ -19,5 +19,5 @@ jobs:
       - uses: actions/checkout@v2
       - uses: ./
         with:
-          pr-title-regex: '^\[feat\]\s'
+          pr-title-regex: '^(build|chore|feat|fix|docs|refactor|perf|style|test):\s[A-Z]{1}'
           github-token: ${{ secrets.GH_TOKEN }}
