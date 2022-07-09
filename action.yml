@@ -1,0 +1,16 @@
+name: 'Standards Bot'
+description: 'A Github Action to enforce pull request and commit standards'
+author: 'chalharb'
+inputs:
+  github-token:
+    description: >
+      Personal access token (PAT) used to fetch the repository. The PAT is configured
+      with the local git config, which enables your scripts to run authenticated git
+      commands. The post-job step removes the PAT.
+      We recommend using a service account with the least permissions necessary.
+      Also when generating a new PAT, select the least scopes necessary.
+    required: true
+    default: ${{ github.token }}
+runs:
+  using: 'node16'
+  main: 'dist/index.js'
