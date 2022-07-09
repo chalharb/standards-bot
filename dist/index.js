@@ -122,6 +122,9 @@ function run() {
                     core.info(`Pull Request title "${pr_title}" passed regex - ${pr_title_regex}`);
                 }
             }
+            else {
+                core.info(`Info: No Pull Request title regular expression specified for validation`);
+            }
             // Check if PR title starts with prefix
             if (pr_title_prefix) {
                 if (!(0, functions_1.validatePrefix)(pr_title, pr_title_prefix)) {
@@ -131,6 +134,9 @@ function run() {
                 else {
                     core.info(`Pull Request title "${pr_title}" starts with ${pr_title_prefix}`);
                 }
+            }
+            else {
+                core.info(`Info: No pull request title prefix specified for validation`);
             }
             // Check if PR Title is less than max length
             if (pr_title_max_length) {
@@ -142,6 +148,9 @@ function run() {
                     core.info(`Pull Request title "${pr_title}" is less than max length of ${pr_title_max_length} characters`);
                 }
             }
+            else {
+                core.info(`Info: No pull request title maximum length specified for validation`);
+            }
             // Check if PR Title is greater than min length
             if (pr_title_min_length) {
                 if (!(0, functions_1.validateMinLength)(pr_title, pr_title_min_length)) {
@@ -152,20 +161,26 @@ function run() {
                     core.info(`Pull Request title "${pr_title}" is longer than min length of ${pr_title_min_length} characters`);
                 }
             }
-            core.info(`\n -------------------------------------------------------\n`);
-            core.info(`Validating Pull Request commits`);
+            else {
+                core.info(`Info: No pull request title minimum length specified for validation`);
+            }
+            if (commit_message_regex) {
+                core.info(`\n -------------------------------------------------------\n`);
+                core.info(`Validating Pull Request commits`);
+            }
             if (commit_message_regex) {
                 pr_commits.map(commit => {
                     if (!(0, functions_1.validateRegex)(commit.message, commit_message_regex)) {
-                        core.setFailed(`"${commit.sha.substring(0, 7)}: ${commit.message}"
-             failed regex check -> ${commit_message_regex}`);
+                        core.setFailed(`"${commit.sha.substring(0, 7)}: ${commit.message}" failed regex check -> ${commit_message_regex}`);
                         return;
                     }
                     else {
-                        core.info(`"${commit.sha.substring(0, 7)}: ${commit.message}"
-             passed regex check -> ${commit_message_regex}`);
+                        core.info(`"${commit.sha.substring(0, 7)}: ${commit.message}" passed regex check -> ${commit_message_regex}`);
                     }
                 });
+            }
+            else {
+                core.info(`Info: No commit regular expression specified for validation`);
             }
         }
         catch (error) {
