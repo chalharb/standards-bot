@@ -1,5 +1,5 @@
-export function validateRegex(text: string, pattern: RegExp): boolean {
-  return pattern.test(text)
+export function validateRegex(text: string, pattern: string): boolean {
+  return new RegExp(pattern).test(text)
 }
 
 export function validatePrefix(text: string, prefix: string): boolean {

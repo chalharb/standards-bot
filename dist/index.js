@@ -9,7 +9,7 @@ require('./sourcemap-register.js');/******/ (() => { // webpackBootstrap
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.validateMinLength = exports.validateMaxLength = exports.validatePrefix = exports.validateRegex = void 0;
 function validateRegex(text, pattern) {
-    return pattern.test(text);
+    return new RegExp(pattern).test(text);
 }
 exports.validateRegex = validateRegex;
 function validatePrefix(text, prefix) {
@@ -98,7 +98,7 @@ function run() {
             const pr_title = pullRequestData.title;
             core.info(`Validating Pull Request title`);
             // Check if PR title passes regex
-            if (!(0, functions_1.validateRegex)(pr_title, RegExp(pr_title_regex))) {
+            if (!(0, functions_1.validateRegex)(pr_title, pr_title_regex)) {
                 core.setFailed(`Pull Request title "${pr_title}" failed to pass match regex - ${RegExp(pr_title_regex)}`);
                 return;
             }

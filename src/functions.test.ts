@@ -10,11 +10,11 @@ const mockTextLength = mockText.length
 
 describe('Text Regex', () => {
   test('matches', async () => {
-    expect(validateRegex(mockText, /^AB#\d{4,6}:\s/)).toBe(true)
+    expect(validateRegex(mockText, '^AB#\\d{4,6}:\\s')).toBe(true)
   })
 
   test('does not match', async () => {
-    expect(validateRegex(mockText, /^AC#\d{4,6}:\s/)).toBe(false)
+    expect(validateRegex(mockText, '^BB#\\d{4,6}:\\s')).toBe(false)
   })
 })
 

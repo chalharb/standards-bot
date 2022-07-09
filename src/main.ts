@@ -35,7 +35,7 @@ async function run(): Promise<void> {
 
     core.info(`Validating Pull Request title`)
     // Check if PR title passes regex
-    if (!validateRegex(pr_title, RegExp(pr_title_regex))) {
+    if (!validateRegex(pr_title, pr_title_regex)) {
       core.setFailed(
         `Pull Request title "${pr_title}" failed to pass match regex - ${RegExp(
           pr_title_regex
