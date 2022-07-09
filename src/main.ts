@@ -1,11 +1,6 @@
 import * as core from '@actions/core'
 import * as github from '@actions/github'
-import {
-  validateRegex,
-  validatePrefix,
-  validateMaxLength,
-  validateMinLength
-} from './functions'
+import {validateRegex} from './functions'
 
 async function run(): Promise<void> {
   try {
