@@ -1,0 +1,23 @@
+name: 'build-test'
+on:
+  pull_request:
+    branches:
+      - develop
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: |
+          npm install
+      - run: |
+          npm run all
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ./
+        with:
+          pr-title-regex: '/^AB#\d{4,6}:\s/'
+          github-token: ${{ secrets.GH_TOKEN }}
