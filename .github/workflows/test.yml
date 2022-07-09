@@ -31,7 +31,7 @@ jobs:
         name: 'Testing PR Title Min and Max length'
         with:
           pr-title-min-length: 10
-          pr-title-max-length: 60
+          pr-title-max-length: 70
           github-token: ${{ secrets.GH_TOKEN }}
       - uses: ./
         name: 'Testing All Commits Against Regular Expression'
