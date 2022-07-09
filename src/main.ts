@@ -179,9 +179,11 @@ async function run(): Promise<void> {
             )
             return
           } else {
-            ;`"${commit.sha.substring(0, 7)}: ${
-              commit.message
-            }" starts with ${commit_message_prefix}`
+            core.info(
+              `"${commit.sha.substring(0, 7)}: ${
+                commit.message
+              }" starts with ${commit_message_prefix}`
+            )
           }
         } else {
           core.debug(`Debug: No commit prefix specified for validation`)
