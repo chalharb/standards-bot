@@ -41,7 +41,7 @@ jobs:
       - uses: ./
         name: 'Testing All Commit Prefixes'
         with:
-          commit-prefix: 'build,chore,feat,fix,docs,refactor,perf,style,test'
+          commit-message-prefix: 'build,chore,feat,fix,docs,refactor,perf,style,test'
           github-token: ${{ secrets.GH_TOKEN }}
       - uses: ./
         name: 'Testing All Commits Min and Max length'
