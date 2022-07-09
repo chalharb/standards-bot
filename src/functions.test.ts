@@ -26,6 +26,10 @@ describe('Text Prefix', () => {
   test('is incorrectly prefixed', async () => {
     expect(validatePrefix(`Issue: ${mockText}`, 'AB#')).toBe(false)
   })
+
+  test('is correctly prefixed from comma separated list', async () => {
+    expect(validatePrefix(mockText, 'AB#,chore,feat')).toBe(true)
+  })
 })
 
 describe('Max Text Length', () => {

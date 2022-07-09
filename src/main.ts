@@ -1,6 +1,6 @@
 import * as core from '@actions/core'
 import * as github from '@actions/github'
-import {validateRegex} from './functions'
+import {validateRegex, validatePrefix} from './functions'
 
 async function run(): Promise<void> {
   try {
@@ -17,6 +17,7 @@ async function run(): Promise<void> {
     core.debug('Fetching input parameters')
     const authToken = core.getInput('github-token')
     const pr_title_regex = core.getInput('pr-title-regex')
+    const pr_title_prefix = core.getInput('pr-title-prefix')
 
     const owner = github.context.payload.pull_request?.base.user.login
     const repo = github.context.payload.pull_request?.base.repo.name
@@ -35,7 +36,7 @@ async function run(): Promise<void> {
 
     core.info(`Validating Pull Request title`)
     // Check if PR title passes regex
-    if (!validateRegex(pr_title, pr_title_regex)) {
+    if (pr_title_regex && !validateRegex(pr_title, pr_title_regex)) {
       core.setFailed(
         `Pull Request title "${pr_title}" failed to pass match regex - ${RegExp(
           pr_title_regex
@@ -47,6 +48,18 @@ async function run(): Promise<void> {
         `Pull Request title "${pr_title}" passed regex - ${RegExp(
           pr_title_regex
         )}`
+      )
+    }
+
+    // Check if PR title starts with prefix
+    if (pr_title_prefix && !validatePrefix(pr_title, pr_title_prefix)) {
+      core.setFailed(
+        `Pull Request title "${pr_title}" is does not start with ${pr_title_prefix}`
+      )
+      return
+    } else {
+      core.info(
+        `Pull Request title "${pr_title}" starts with ${pr_title_prefix}`
       )
     }
   } catch (error) {
