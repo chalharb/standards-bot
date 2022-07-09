@@ -88,6 +88,7 @@ function run() {
             const pr_title_min_length = parseInt(core.getInput('pr-title-min-length'));
             const pr_title_max_length = parseInt(core.getInput('pr-title-max-length'));
             const commit_message_regex = core.getInput('commit-message-regex');
+            const commit_message_prefix = core.getInput('commit-message-prefix');
             const commit_min_length = parseInt(core.getInput('commit-min-length'));
             const commit_max_length = parseInt(core.getInput('commit-max-length'));
             const owner = (_a = github.context.payload.pull_request) === null || _a === void 0 ? void 0 : _a.base.user.login;
@@ -171,11 +172,15 @@ function run() {
             else {
                 core.debug(`Debug: No pull request title minimum length specified for validation`);
             }
-            if (commit_message_regex || commit_max_length || commit_min_length) {
+            if (commit_message_regex ||
+                commit_message_prefix ||
+                commit_max_length ||
+                commit_min_length) {
                 core.info(`Validating Pull Request commits`);
             }
             if (pr_commits.length > 0) {
                 pr_commits.map(commit => {
+                    // Check if PR title passes regex
                     if (commit_message_regex) {
                         if (!(0, functions_1.validateRegex)(commit.message, commit_message_regex)) {
                             core.setFailed(`"${commit.sha.substring(0, 7)}: ${commit.message}" failed regex check -> ${commit_message_regex}`);
@@ -188,7 +193,21 @@ function run() {
                     else {
                         core.debug(`Debug: No commit regular expression specified for validation`);
                     }
-                    // Check if PR Title is less than max length
+                    // Check if commit starts with prefix
+                    if (commit_message_prefix) {
+                        if (!(0, functions_1.validatePrefix)(commit.message, commit_message_prefix)) {
+                            core.setFailed(`"${commit.sha.substring(0, 7)}: ${commit.message}" does not start with ${commit_message_prefix}`);
+                            return;
+                        }
+                        else {
+                            ;
+                            `"${commit.sha.substring(0, 7)}: ${commit.message}" starts with ${commit_message_prefix}`;
+                        }
+                    }
+                    else {
+                        core.debug(`Debug: No commit prefix specified for validation`);
+                    }
+                    // Check if commit is less than max length
                     if (commit_max_length) {
                         if (!(0, functions_1.validateMaxLength)(commit.message, commit_max_length)) {
                             core.setFailed(`"${commit.sha.substring(0, 7)}: ${commit.message}" is longer than max length of ${commit_max_length} characters`);
@@ -201,7 +220,7 @@ function run() {
                     else {
                         core.debug(`Debug: No commit maximum length specified for validation`);
                     }
-                    // Check if PR Title is greater than min length
+                    // Check if commit is greater than min length
                     if (commit_min_length) {
                         if (!(0, functions_1.validateMinLength)(commit.message, commit_min_length)) {
                             core.setFailed(`"${commit.sha.substring(0, 7)}: ${commit.message}" is less than min length of ${commit_min_length} characters`);
