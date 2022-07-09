@@ -39,6 +39,11 @@ jobs:
           commit-message-regex: '^(build|chore|feat|fix|docs|refactor|perf|style|test):\s[A-Z]{1}'
           github-token: ${{ secrets.GH_TOKEN }}
       - uses: ./
+        name: 'Testing All Commit Prefixes'
+        with:
+          commit-message-prefix: 'build,chore,feat,fix,docs,refactor,perf,style,test'
+          github-token: ${{ secrets.GH_TOKEN }}
+      - uses: ./
         name: 'Testing All Commits Min and Max length'
         with:
           commit-min-length: 10

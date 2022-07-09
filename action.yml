@@ -17,6 +17,9 @@ inputs:
   commit-message-regex:
     description: 'Regex to validate the commit messages'
     required: false
+  commit-message-prefix:
+    description: 'Prefix that all commits must start with'
+    required: false
   commit-min-length:
     description: 'Min length of commit message'
     required: false
