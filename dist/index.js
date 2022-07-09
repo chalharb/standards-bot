@@ -200,7 +200,7 @@ function run() {
                             return;
                         }
                         else {
-                            core.info(`"${commit.sha.substring(0, 7)}: ${commit.message}" starts with ${commit_message_prefix}`);
+                            core.info(`"${commit.sha.substring(0, 7)}: ${commit.message}" starts with "${commit_message_prefix}"`);
                         }
                     }
                     else {

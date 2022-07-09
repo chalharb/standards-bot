@@ -182,7 +182,7 @@ async function run(): Promise<void> {
             core.info(
               `"${commit.sha.substring(0, 7)}: ${
                 commit.message
-              }" starts with ${commit_message_prefix}`
+              }" starts with "${commit_message_prefix}"`
             )
           }
         } else {
