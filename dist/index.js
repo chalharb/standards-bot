@@ -113,7 +113,12 @@ function run() {
                     author: (_a = commit.author) === null || _a === void 0 ? void 0 : _a.login
                 });
             });
-            core.info(`Validating Pull Request title`);
+            if (pr_title_regex ||
+                pr_title_prefix ||
+                pr_title_min_length ||
+                pr_title_max_length) {
+                core.info(`Validating Pull Request title`);
+            }
             // Check if PR title passes regex
             if (pr_title_regex) {
                 if (!(0, functions_1.validateRegex)(pr_title, pr_title_regex)) {
@@ -125,7 +130,7 @@ function run() {
                 }
             }
             else {
-                core.info(`Info: No Pull Request title regular expression specified for validation`);
+                core.debug(`Debug: No Pull Request title regular expression specified for validation`);
             }
             // Check if PR title starts with prefix
             if (pr_title_prefix) {
@@ -138,7 +143,7 @@ function run() {
                 }
             }
             else {
-                core.info(`Info: No pull request title prefix specified for validation`);
+                core.debug(`Debug: No pull request title prefix specified for validation`);
             }
             // Check if PR Title is less than max length
             if (pr_title_max_length) {
@@ -151,7 +156,7 @@ function run() {
                 }
             }
             else {
-                core.info(`Info: No pull request title maximum length specified for validation`);
+                core.debug(`Debug: No pull request title maximum length specified for validation`);
             }
             // Check if PR Title is greater than min length
             if (pr_title_min_length) {
@@ -164,10 +169,9 @@ function run() {
                 }
             }
             else {
-                core.info(`Info: No pull request title minimum length specified for validation`);
+                core.debug(`Debug: No pull request title minimum length specified for validation`);
             }
-            if (commit_message_regex) {
-                core.info(`\n -------------------------------------------------------\n`);
+            if (commit_message_regex || commit_max_length || commit_min_length) {
                 core.info(`Validating Pull Request commits`);
             }
             if (pr_commits.length > 0) {
@@ -182,7 +186,7 @@ function run() {
                         }
                     }
                     else {
-                        core.info(`Info: No commit regular expression specified for validation`);
+                        core.debug(`Debug: No commit regular expression specified for validation`);
                     }
                     // Check if PR Title is less than max length
                     if (commit_max_length) {
@@ -195,11 +199,11 @@ function run() {
                         }
                     }
                     else {
-                        core.info(`Info: No commit maximum length specified for validation`);
+                        core.debug(`Debug: No commit maximum length specified for validation`);
                     }
                     // Check if PR Title is greater than min length
                     if (commit_min_length) {
-                        if (!(0, functions_1.validateMaxLength)(commit.message, commit_min_length)) {
+                        if (!(0, functions_1.validateMinLength)(commit.message, commit_min_length)) {
                             core.setFailed(`"${commit.sha.substring(0, 7)}: ${commit.message}" is less than min length of ${commit_min_length} characters`);
                             return;
                         }
@@ -208,7 +212,7 @@ function run() {
                         }
                     }
                     else {
-                        core.info(`Info: No commit minimum length specified for validation`);
+                        core.debug(`Debug: No commit minimum length specified for validation`);
                     }
                 });
             }
