@@ -19,5 +19,5 @@ jobs:
       - uses: actions/checkout@v2
       - uses: ./
         with:
-          pr-title-regex: '/^AB#\d{4,6}:\s/'
+          pr-title-regex: "/^\\[enhancement\\]:\\s/"
           github-token: ${{ secrets.GH_TOKEN }}
