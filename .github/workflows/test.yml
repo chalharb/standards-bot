@@ -18,18 +18,23 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: ./
-        name: 'Testing Regular Expressions'
+        name: 'Testing PR Title Against Regular Expression'
         with:
           pr-title-regex: '^(build|chore|feat|fix|docs|refactor|perf|style|test):\s[A-Z]{1}'
           github-token: ${{ secrets.GH_TOKEN }}
       - uses: ./
-        name: 'Testing Prefixes'
+        name: 'Testing PR Title Prefix'
         with:
           pr-title-prefix: 'build,chore,feat,fix,docs,refactor,perf,style,test'
           github-token: ${{ secrets.GH_TOKEN }}
       - uses: ./
-        name: 'Testing Min and Max length'
+        name: 'Testing PR Title Min and Max length'
         with:
           pr-title-min-length: 10
           pr-title-max-length: 60
+          github-token: ${{ secrets.GH_TOKEN }}
+      - uses: ./
+        name: 'Testing All Commits Against Regular Expression'
+        with:
+          commit-message-regex: '^(build|chore|feat|fix|docs|refactor|perf|style|test):\s[A-Z]{1}'
           github-token: ${{ secrets.GH_TOKEN }}

@@ -25,6 +25,7 @@ async function run(): Promise<void> {
     const pr_title_prefix = core.getInput('pr-title-prefix')
     const pr_title_min_length = parseInt(core.getInput('pr-title-min-length'))
     const pr_title_max_length = parseInt(core.getInput('pr-title-max-length'))
+    const commit_message_regex = core.getInput('commit-message-regex')
 
     const owner = github.context.payload.pull_request?.base.user.login
     const repo = github.context.payload.pull_request?.base.repo.name
@@ -38,8 +39,18 @@ async function run(): Promise<void> {
       pull_number: pr_number
     }
 
+    core.debug('Fetching Pull Request Data')
     const {data: pullRequestData} = await octokit.rest.pulls.get(payload)
+
+    core.debug('Fetching Pull Request Commits')
+    const {data: commits} = await octokit.rest.pulls.listCommits(payload)
+
     const pr_title = pullRequestData.title
+    const pr_commits = commits.map(commit => ({
+      message: commit.commit.message,
+      sha: commit.sha,
+      author: commit.author?.login
+    }))
 
     core.info(`Validating Pull Request title`)
     // Check if PR title passes regex
@@ -98,6 +109,26 @@ async function run(): Promise<void> {
           `Pull Request title "${pr_title}" is longer than min length of ${pr_title_min_length} characters`
         )
       }
+    }
+
+    core.info(`\n -------------------------------------------------------\n`)
+    core.info(`Validating Pull Request commits`)
+
+    if (commit_message_regex) {
+      pr_commits.map(commit => {
+        if (!validateRegex(commit.message, commit_message_regex)) {
+          core.setFailed(
+            `"${commit.sha.substring(0, 7)}: ${commit.message}"
+             failed regex check -> ${commit_message_regex}`
+          )
+          return
+        } else {
+          core.info(
+            `"${commit.sha.substring(0, 7)}: ${commit.message}"
+             passed regex check -> ${commit_message_regex}`
+          )
+        }
+      })
     }
   } catch (error) {
     if (error instanceof Error) core.setFailed(error.message)
