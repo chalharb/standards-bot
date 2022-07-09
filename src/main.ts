@@ -16,8 +16,14 @@ async function run(): Promise<void> {
 
     core.debug('Fetching input parameters')
     const authToken = core.getInput('github-token')
-    const pr_title_regex = core.getInput('pr-title-regex')
-    const pr_title_prefix = core.getInput('pr-title-prefix')
+    const pr_title_regex =
+      core.getInput('pr-title-regex') !== ''
+        ? core.getInput('pr-title-regex')
+        : null
+    const pr_title_prefix =
+      core.getInput('pr-title-prefix') !== ''
+        ? core.getInput('pr-title-prefix')
+        : null
 
     const owner = github.context.payload.pull_request?.base.user.login
     const repo = github.context.payload.pull_request?.base.repo.name
@@ -45,9 +51,7 @@ async function run(): Promise<void> {
       return
     } else {
       core.info(
-        `Pull Request title "${pr_title}" passed regex - ${RegExp(
-          pr_title_regex
-        )}`
+        `Pull Request title "${pr_title}" passed regex - ${pr_title_regex}`
       )
     }
 

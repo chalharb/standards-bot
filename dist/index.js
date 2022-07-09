@@ -83,8 +83,12 @@ function run() {
             }
             core.debug('Fetching input parameters');
             const authToken = core.getInput('github-token');
-            const pr_title_regex = core.getInput('pr-title-regex');
-            const pr_title_prefix = core.getInput('pr-title-prefix');
+            const pr_title_regex = core.getInput('pr-title-regex') !== ''
+                ? core.getInput('pr-title-regex')
+                : null;
+            const pr_title_prefix = core.getInput('pr-title-prefix') !== ''
+                ? core.getInput('pr-title-prefix')
+                : null;
             const owner = (_a = github.context.payload.pull_request) === null || _a === void 0 ? void 0 : _a.base.user.login;
             const repo = (_b = github.context.payload.pull_request) === null || _b === void 0 ? void 0 : _b.base.repo.name;
             const pr_number = (_c = github.context.payload.pull_request) === null || _c === void 0 ? void 0 : _c.number;
@@ -104,7 +108,7 @@ function run() {
                 return;
             }
             else {
-                core.info(`Pull Request title "${pr_title}" passed regex - ${RegExp(pr_title_regex)}`);
+                core.info(`Pull Request title "${pr_title}" passed regex - ${pr_title_regex}`);
             }
             // Check if PR title starts with prefix
             if (pr_title_prefix && !(0, functions_1.validatePrefix)(pr_title, pr_title_prefix)) {
