@@ -38,3 +38,9 @@ jobs:
         with:
           commit-message-regex: '^(build|chore|feat|fix|docs|refactor|perf|style|test):\s[A-Z]{1}'
           github-token: ${{ secrets.GH_TOKEN }}
+      - uses: ./
+        name: 'Testing All Commits Min and Max length'
+        with:
+          commit-min-length: 10
+          commit-max-length: 70
+          github-token: ${{ secrets.GH_TOKEN }}

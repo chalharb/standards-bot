@@ -26,6 +26,8 @@ async function run(): Promise<void> {
     const pr_title_min_length = parseInt(core.getInput('pr-title-min-length'))
     const pr_title_max_length = parseInt(core.getInput('pr-title-max-length'))
     const commit_message_regex = core.getInput('commit-message-regex')
+    const commit_min_length = parseInt(core.getInput('commit-min-length'))
+    const commit_max_length = parseInt(core.getInput('commit-max-length'))
 
     const owner = github.context.payload.pull_request?.base.user.login
     const repo = github.context.payload.pull_request?.base.repo.name
@@ -52,7 +54,15 @@ async function run(): Promise<void> {
       author: commit.author?.login
     }))
 
-    core.info(`Validating Pull Request title`)
+    if (
+      pr_title_regex ||
+      pr_title_prefix ||
+      pr_title_min_length ||
+      pr_title_max_length
+    ) {
+      core.info(`Validating Pull Request title`)
+    }
+
     // Check if PR title passes regex
     if (pr_title_regex) {
       if (!validateRegex(pr_title, pr_title_regex)) {
@@ -68,8 +78,8 @@ async function run(): Promise<void> {
         )
       }
     } else {
-      core.info(
-        `Info: No Pull Request title regular expression specified for validation`
+      core.debug(
+        `Debug: No Pull Request title regular expression specified for validation`
       )
     }
 
@@ -86,7 +96,7 @@ async function run(): Promise<void> {
         )
       }
     } else {
-      core.info(`Info: No pull request title prefix specified for validation`)
+      core.debug(`Debug: No pull request title prefix specified for validation`)
     }
 
     // Check if PR Title is less than max length
@@ -102,8 +112,8 @@ async function run(): Promise<void> {
         )
       }
     } else {
-      core.info(
-        `Info: No pull request title maximum length specified for validation`
+      core.debug(
+        `Debug: No pull request title maximum length specified for validation`
       )
     }
 
@@ -120,35 +130,78 @@ async function run(): Promise<void> {
         )
       }
     } else {
-      core.info(
-        `Info: No pull request title minimum length specified for validation`
+      core.debug(
+        `Debug: No pull request title minimum length specified for validation`
       )
     }
 
-    if (commit_message_regex) {
-      core.info(`\n -------------------------------------------------------\n`)
+    if (commit_message_regex || commit_max_length || commit_min_length) {
       core.info(`Validating Pull Request commits`)
     }
 
-    if (commit_message_regex) {
+    if (pr_commits.length > 0) {
       pr_commits.map(commit => {
-        if (!validateRegex(commit.message, commit_message_regex)) {
-          core.setFailed(
-            `"${commit.sha.substring(0, 7)}: ${
-              commit.message
-            }" failed regex check -> ${commit_message_regex}`
-          )
-          return
+        if (commit_message_regex) {
+          if (!validateRegex(commit.message, commit_message_regex)) {
+            core.setFailed(
+              `"${commit.sha.substring(0, 7)}: ${
+                commit.message
+              }" failed regex check -> ${commit_message_regex}`
+            )
+            return
+          } else {
+            core.info(
+              `"${commit.sha.substring(0, 7)}: ${
+                commit.message
+              }" passed regex check -> ${commit_message_regex}`
+            )
+          }
         } else {
-          core.info(
-            `"${commit.sha.substring(0, 7)}: ${
-              commit.message
-            }" passed regex check -> ${commit_message_regex}`
+          core.debug(
+            `Debug: No commit regular expression specified for validation`
           )
         }
+
+        // Check if PR Title is less than max length
+        if (commit_max_length) {
+          if (!validateMaxLength(commit.message, commit_max_length)) {
+            core.setFailed(
+              `"${commit.sha.substring(0, 7)}: ${
+                commit.message
+              }" is longer than max length of ${commit_max_length} characters`
+            )
+            return
+          } else {
+            core.info(
+              `"${commit.sha.substring(0, 7)}: ${
+                commit.message
+              }" is less than max length of ${commit_max_length} characters`
+            )
+          }
+        } else {
+          core.debug(`Debug: No commit maximum length specified for validation`)
+        }
+
+        // Check if PR Title is greater than min length
+        if (commit_min_length) {
+          if (!validateMinLength(commit.message, commit_min_length)) {
+            core.setFailed(
+              `"${commit.sha.substring(0, 7)}: ${
+                commit.message
+              }" is less than min length of ${commit_min_length} characters`
+            )
+            return
+          } else {
+            core.info(
+              `"${commit.sha.substring(0, 7)}: ${
+                commit.message
+              }" is longer than min length of ${commit_min_length} characters`
+            )
+          }
+        } else {
+          core.debug(`Debug: No commit minimum length specified for validation`)
+        }
       })
-    } else {
-      core.info(`Info: No commit regular expression specified for validation`)
     }
   } catch (error) {
     if (error instanceof Error) core.setFailed(error.message)
