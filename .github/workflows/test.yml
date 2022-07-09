@@ -27,3 +27,9 @@ jobs:
         with:
           pr-title-prefix: 'build,chore,feat,fix,docs,refactor,perf,style,test'
           github-token: ${{ secrets.GH_TOKEN }}
+      - uses: ./
+        name: 'Testing Min and Max length'
+        with:
+          pr-title-min-length: 10
+          pr-title-max-length: 60
+          github-token: ${{ secrets.GH_TOKEN }}

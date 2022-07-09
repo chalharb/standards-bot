@@ -8,6 +8,12 @@ inputs:
   pr-title-prefix:
     description: 'Comma separated list that all pull requests must start with'
     required: false
+  pr-title-min-length:
+    description: 'Min length of pull request title'
+    required: false
+  pr-title-max-length:
+    description: 'Max length of pull request title'
+    required: false
   github-token:
     description: >
       Personal access token (PAT) used to fetch the repository. The PAT is configured

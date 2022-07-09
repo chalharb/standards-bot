@@ -1,6 +1,11 @@
 import * as core from '@actions/core'
 import * as github from '@actions/github'
-import {validateRegex, validatePrefix} from './functions'
+import {
+  validateRegex,
+  validatePrefix,
+  validateMaxLength,
+  validateMinLength
+} from './functions'
 
 async function run(): Promise<void> {
   try {
@@ -16,14 +21,10 @@ async function run(): Promise<void> {
 
     core.debug('Fetching input parameters')
     const authToken = core.getInput('github-token')
-    const pr_title_regex =
-      core.getInput('pr-title-regex') !== ''
-        ? core.getInput('pr-title-regex')
-        : null
-    const pr_title_prefix =
-      core.getInput('pr-title-prefix') !== ''
-        ? core.getInput('pr-title-prefix')
-        : null
+    const pr_title_regex = core.getInput('pr-title-regex')
+    const pr_title_prefix = core.getInput('pr-title-prefix')
+    const pr_title_min_length = parseInt(core.getInput('pr-title-min-length'))
+    const pr_title_max_length = parseInt(core.getInput('pr-title-max-length'))
 
     const owner = github.context.payload.pull_request?.base.user.login
     const repo = github.context.payload.pull_request?.base.repo.name
@@ -67,6 +68,34 @@ async function run(): Promise<void> {
       } else {
         core.info(
           `Pull Request title "${pr_title}" starts with ${pr_title_prefix}`
+        )
+      }
+    }
+
+    // Check if PR Title is less than max length
+    if (pr_title_max_length) {
+      if (!validateMaxLength(pr_title, pr_title_max_length)) {
+        core.setFailed(
+          `Pull Request title "${pr_title}" is longer than max length of ${pr_title_max_length} characters`
+        )
+        return
+      } else {
+        core.info(
+          `Pull Request title "${pr_title}" is less than max length of ${pr_title_max_length} characters`
+        )
+      }
+    }
+
+    // Check if PR Title is greater than min length
+    if (pr_title_min_length) {
+      if (!validateMinLength(pr_title, pr_title_min_length)) {
+        core.setFailed(
+          `Pull Request title "${pr_title}" is less than min length of ${pr_title_min_length} characters`
+        )
+        return
+      } else {
+        core.info(
+          `Pull Request title "${pr_title}" is longer than min length of ${pr_title_min_length} characters`
         )
       }
     }
