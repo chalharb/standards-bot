@@ -10,6 +10,10 @@ import {
 
 import {PullRequestData} from './types'
 
+function cyanText(text: string): string {
+  return `${styles.cyan.open}${text}${styles.cyan.close}`
+}
+
 function boldText(text: string): string {
   return `${styles.bold.open}${text}${styles.bold.close}`
 }
@@ -64,7 +68,7 @@ async function run(): Promise<void> {
       ...pullRequestData
     })
 
-    core.info(boldText('Validating Pull Request Title'))
+    core.info(cyanText(boldText('Validating Pull Request Title')))
     core.info('---------------------------------------------------------------')
     // Check if a pull request title matches the provied Regular Expression
     inputs.prTitleRegExp
@@ -108,7 +112,7 @@ async function run(): Promise<void> {
     }))
 
     core.info('')
-    core.info(boldText('Validating Commit Messages'))
+    core.info(cyanText(boldText('Validating Commit Messages')))
     core.info('---------------------------------------------------------------')
     if (allPullRequestCommits.length > 0) {
       allPullRequestCommits.map(commit => {

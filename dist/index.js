@@ -73,6 +73,9 @@ const core = __importStar(__nccwpck_require__(2186));
 const github = __importStar(__nccwpck_require__(5438));
 const ansi_styles_1 = __importDefault(__nccwpck_require__(2068));
 const functions_1 = __nccwpck_require__(358);
+function cyanText(text) {
+    return `${ansi_styles_1.default.cyan.open}${text}${ansi_styles_1.default.cyan.close}`;
+}
 function boldText(text) {
     return `${ansi_styles_1.default.bold.open}${text}${ansi_styles_1.default.bold.close}`;
 }
@@ -113,7 +116,7 @@ function run() {
             const octokit = github.getOctokit(inputs.authToken);
             core.debug('Fetching Pull Request Data');
             const { data } = yield octokit.rest.pulls.get(Object.assign({}, pullRequestData));
-            core.info(boldText('Validating Pull Request Title'));
+            core.info(cyanText(boldText('Validating Pull Request Title')));
             core.info('---------------------------------------------------------------');
             // Check if a pull request title matches the provied Regular Expression
             inputs.prTitleRegExp
@@ -152,7 +155,7 @@ function run() {
                 });
             });
             core.info('');
-            core.info(boldText('Validating Commit Messages'));
+            core.info(cyanText(boldText('Validating Commit Messages')));
             core.info('---------------------------------------------------------------');
             if (allPullRequestCommits.length > 0) {
                 allPullRequestCommits.map(commit => {
