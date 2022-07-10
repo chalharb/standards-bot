@@ -1,5 +1,6 @@
 import * as core from '@actions/core'
 import * as github from '@actions/github'
+import styles from 'ansi-styles'
 import {
   validateRegex,
   validatePrefix,
@@ -8,6 +9,10 @@ import {
 } from './functions'
 
 import {PullRequestData} from './types'
+
+function boldText(text: string): string {
+  return `${styles.bold.open}${text}${styles.bold.close}`
+}
 
 async function run(): Promise<void> {
   try {
@@ -59,7 +64,7 @@ async function run(): Promise<void> {
       ...pullRequestData
     })
 
-    core.info('Validating Pull Request title')
+    core.info(boldText('Validating Pull Request Title'))
     core.info('---------------------------------------------------------------')
     // Check if a pull request title matches the provied Regular Expression
     inputs.prTitleRegExp
@@ -102,7 +107,8 @@ async function run(): Promise<void> {
       author: commit.author?.login
     }))
 
-    core.info('Validating Commit Messages')
+    core.info('')
+    core.info(boldText('Validating Commit Messages'))
     core.info('---------------------------------------------------------------')
     if (allPullRequestCommits.length > 0) {
       allPullRequestCommits.map(commit => {
