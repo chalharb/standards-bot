@@ -107,6 +107,7 @@ function run() {
             core.debug('Fetching Pull Request Data');
             const { data } = yield octokit.rest.pulls.get(Object.assign({}, pullRequestData));
             core.info('Validating Pull Request title');
+            core.info('---------------------------------------------------------------');
             // Check if a pull request title matches the provied Regular Expression
             inputs.prTitleRegExp
                 ? !(0, functions_1.validateRegex)(data.title, inputs.prTitleRegExp)
@@ -144,32 +145,34 @@ function run() {
                 });
             });
             core.info('Validating Commit Messages');
+            core.info('---------------------------------------------------------------');
             if (allPullRequestCommits.length > 0) {
                 allPullRequestCommits.map(commit => {
+                    core.info(`Validating commit: ${commit.sha} ${commit.message}`);
                     // Check if commit message matches the provied regular expression
                     inputs.commitMessageRegExp
                         ? !(0, functions_1.validateRegex)(commit.message, inputs.commitMessageRegExp)
                             ? core.setFailed(`Commit message failed regex - ${inputs.commitMessageRegExp}`)
                             : core.info(`Commit message passed regex - ${inputs.commitMessageRegExp}`)
-                        : core.info('Skipping: No commit message regular expression provided');
+                        : core.info('- Skipping: No commit message regular expression provided');
                     // Check if commit message matches the provied prefix
                     inputs.commitMessagePrefix
                         ? !(0, functions_1.validatePrefix)(commit.message, inputs.commitMessagePrefix)
                             ? core.setFailed(`Commit message failed prefix - ${inputs.commitMessageRegExp}`)
                             : core.info(`Commit message passed prefix - ${inputs.commitMessageRegExp}`)
-                        : core.info('Skipping: No commit message prefix provided');
+                        : core.info('- Skipping: No commit message prefix provided');
                     // Check if commit message is greater than the provided min length
                     inputs.commitMessageMinLength
                         ? !(0, functions_1.validateMinLength)(commit.message, inputs.commitMessageMinLength)
                             ? core.setFailed(`Commit message failed min length - ${inputs.commitMessageRegExp}`)
                             : core.info(`Commit message passed min length - ${inputs.commitMessageRegExp}`)
-                        : core.info('Skipping: No commit message min length provided');
+                        : core.info('- Skipping: No commit message min length provided');
                     // Check if commit message is less than the provided max length
                     inputs.commitMessageMaxLength
                         ? !(0, functions_1.validateMinLength)(commit.message, inputs.commitMessageMaxLength)
                             ? core.setFailed(`Commit message failed max length - ${inputs.commitMessageRegExp}`)
                             : core.info(`Commit message passed max length - ${inputs.commitMessageRegExp}`)
-                        : core.info('Skipping: No commit message max length provided');
+                        : core.info('- Skipping: No commit message max length provided');
                 });
             }
         }

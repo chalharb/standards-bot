@@ -60,6 +60,7 @@ async function run(): Promise<void> {
     })
 
     core.info('Validating Pull Request title')
+    core.info('---------------------------------------------------------------')
     // Check if a pull request title matches the provied Regular Expression
     inputs.prTitleRegExp
       ? !validateRegex(data.title, inputs.prTitleRegExp)
@@ -102,8 +103,10 @@ async function run(): Promise<void> {
     }))
 
     core.info('Validating Commit Messages')
+    core.info('---------------------------------------------------------------')
     if (allPullRequestCommits.length > 0) {
       allPullRequestCommits.map(commit => {
+        core.info(`Validating commit: ${commit.sha} ${commit.message}`)
         // Check if commit message matches the provied regular expression
         inputs.commitMessageRegExp
           ? !validateRegex(commit.message, inputs.commitMessageRegExp)
@@ -113,7 +116,9 @@ async function run(): Promise<void> {
             : core.info(
                 `Commit message passed regex - ${inputs.commitMessageRegExp}`
               )
-          : core.info('Skipping: No commit message regular expression provided')
+          : core.info(
+              '- Skipping: No commit message regular expression provided'
+            )
 
         // Check if commit message matches the provied prefix
         inputs.commitMessagePrefix
@@ -124,7 +129,7 @@ async function run(): Promise<void> {
             : core.info(
                 `Commit message passed prefix - ${inputs.commitMessageRegExp}`
               )
-          : core.info('Skipping: No commit message prefix provided')
+          : core.info('- Skipping: No commit message prefix provided')
 
         // Check if commit message is greater than the provided min length
         inputs.commitMessageMinLength
@@ -135,7 +140,7 @@ async function run(): Promise<void> {
             : core.info(
                 `Commit message passed min length - ${inputs.commitMessageRegExp}`
               )
-          : core.info('Skipping: No commit message min length provided')
+          : core.info('- Skipping: No commit message min length provided')
 
         // Check if commit message is less than the provided max length
         inputs.commitMessageMaxLength
@@ -146,7 +151,7 @@ async function run(): Promise<void> {
             : core.info(
                 `Commit message passed max length - ${inputs.commitMessageRegExp}`
               )
-          : core.info('Skipping: No commit message max length provided')
+          : core.info('- Skipping: No commit message max length provided')
       })
     }
   } catch (error) {
