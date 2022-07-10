@@ -7,229 +7,168 @@ import {
   validateMinLength
 } from './functions'
 
+import {PullRequestData} from './types'
+
 async function run(): Promise<void> {
   try {
     core.debug('Standards Bot Starting Analysis')
     const validEvents = ['pull_request']
 
+    // Check if event is a pull request to fail early
     core.debug('Checking if the event is a pull request')
-    const event = github.context.eventName
-    if (!validEvents.includes(event)) {
-      core.setFailed(`Invalid event: ${event}`)
+    if (!validEvents.includes(github.context.eventName)) {
+      core.setFailed(`Invalid Event: ${github.context.eventName}`)
       return
     }
 
-    core.debug('Fetching input parameters')
-    const authToken = core.getInput('github-token')
-    const pr_title_regex = core.getInput('pr-title-regex')
-    const pr_title_prefix = core.getInput('pr-title-prefix')
-    const pr_title_min_length = parseInt(core.getInput('pr-title-min-length'))
-    const pr_title_max_length = parseInt(core.getInput('pr-title-max-length'))
-    const commit_message_regex = core.getInput('commit-message-regex')
-    const commit_message_prefix = core.getInput('commit-message-prefix')
-    const commit_min_length = parseInt(core.getInput('commit-min-length'))
-    const commit_max_length = parseInt(core.getInput('commit-max-length'))
+    const pullRequestPayload = github.context.payload.pull_request
 
-    const owner = github.context.payload.pull_request?.base.user.login
-    const repo = github.context.payload.pull_request?.base.repo.name
-    const pr_number = github.context.payload.pull_request?.number as number
-    const octokit = github.getOctokit(authToken)
-
-    core.debug('Setting payload')
-    const payload = {
-      owner,
-      repo,
-      pull_number: pr_number
+    const pullRequestData: PullRequestData = {
+      owner: pullRequestPayload!.base.user.login,
+      repo: pullRequestPayload!.base.repo.name,
+      pull_number: pullRequestPayload!.number
     }
+
+    core.debug('Fetching input parameters')
+    const inputs = {
+      authToken: core.getInput('github-token'),
+      prTitleRegExp: core.getInput('pr-title-regex') || undefined,
+      prTitlePrefix: core.getInput('pr-title-prefix') || undefined,
+      prTitleMinLength:
+        parseInt(core.getInput('pr-title-min-length')) || undefined,
+      prTitleMaxLength:
+        parseInt(core.getInput('pr-title-max-length')) || undefined,
+      commitMessageRegExp: core.getInput('commit-message-regex') || undefined,
+      commitMessagePrefix: core.getInput('commit-message-prefix') || undefined,
+      commitMessageMinLength:
+        parseInt(core.getInput('commit-min-length')) || undefined,
+      commitMessageMaxLength:
+        parseInt(core.getInput('commit-max-length')) || undefined
+    }
+
+    // Check if an auth token is provided to fail early
+    if (!inputs.authToken) {
+      core.setFailed('Exiting: No GitHub Token provided')
+      return
+    }
+
+    const octokit = github.getOctokit(inputs.authToken)
 
     core.debug('Fetching Pull Request Data')
-    const {data: pullRequestData} = await octokit.rest.pulls.get(payload)
+    octokit.rest.pulls
+      .get({
+        ...pullRequestData
+      })
+      .then(({data}) => {
+        core.info('Validating Pull Request title')
+        // Check if a pull request title matches the provied Regular Expression
+        inputs.prTitleRegExp
+          ? !validateRegex(data.title, inputs.prTitleRegExp)
+            ? core.setFailed(`PR title failed regex - ${inputs.prTitleRegExp}`)
+            : core.info(`PR title passed regex - ${inputs.prTitleRegExp}`)
+          : core.info('Skipping: No PR title regular expression provided')
 
-    core.debug('Fetching Pull Request Commits')
-    const {data: commits} = await octokit.rest.pulls.listCommits(payload)
+        // Check if a pull request title starts with the provided prefix
+        inputs.prTitlePrefix
+          ? !validatePrefix(data.title, inputs.prTitlePrefix)
+            ? core.setFailed(`PR title failed prefix - ${inputs.prTitleRegExp}`)
+            : core.info(`PR title passed prefix - ${inputs.prTitleRegExp}`)
+          : core.info('Skipping: No PR title prefix provided')
 
-    const pr_title = pullRequestData.title
-    const pr_commits = commits.map(commit => ({
-      message: commit.commit.message,
-      sha: commit.sha,
-      author: commit.author?.login
-    }))
+        // Check if a pull request title is greater than the provided min length
+        inputs.prTitleMinLength
+          ? !validateMinLength(data.title, inputs.prTitleMinLength)
+            ? core.setFailed(
+                `PR title failed min length - ${inputs.prTitleRegExp}`
+              )
+            : core.info(`PR title passed min length - ${inputs.prTitleRegExp}`)
+          : core.info('Skipping: No PR title min length provided')
 
-    if (
-      pr_title_regex ||
-      pr_title_prefix ||
-      pr_title_min_length ||
-      pr_title_max_length
-    ) {
-      core.info(`Validating Pull Request title`)
-    }
+        // Check if a pull request title is less than the provided max length
+        inputs.prTitleMaxLength
+          ? !validateMaxLength(data.title, inputs.prTitleMaxLength)
+            ? core.setFailed(
+                `PR title failed max length - ${inputs.prTitleRegExp}`
+              )
+            : core.info(`PR title passed max length - ${inputs.prTitleRegExp}`)
+          : core.info('Skipping: No PR title max length provided')
+      })
+      .catch(error => {
+        if (error instanceof Error) core.setFailed(error.message)
+      })
 
-    // Check if PR title passes regex
-    if (pr_title_regex) {
-      if (!validateRegex(pr_title, pr_title_regex)) {
-        core.setFailed(
-          `Pull Request title "${pr_title}" failed to pass match regex - ${RegExp(
-            pr_title_regex
-          )}`
-        )
-        return
-      } else {
-        core.info(
-          `Pull Request title "${pr_title}" passed regex - ${pr_title_regex}`
-        )
-      }
-    } else {
-      core.debug(
-        `Debug: No Pull Request title regular expression specified for validation`
-      )
-    }
+    core.debug('Fetching Commit Data')
+    octokit.rest.pulls
+      .listCommits({...pullRequestData})
+      .then(({data: commits}) => {
+        core.debug('Generating commit message array')
+        // Generate an array of commits
+        const allPullRequestCommits = commits.map(commit => ({
+          message: commit.commit.message,
+          sha: commit.sha.substring(0, 7),
+          author: commit.author?.login
+        }))
 
-    // Check if PR title starts with prefix
-    if (pr_title_prefix) {
-      if (!validatePrefix(pr_title, pr_title_prefix)) {
-        core.setFailed(
-          `Pull Request title "${pr_title}" is does not start with ${pr_title_prefix}`
-        )
-        return
-      } else {
-        core.info(
-          `Pull Request title "${pr_title}" starts with ${pr_title_prefix}`
-        )
-      }
-    } else {
-      core.debug(`Debug: No pull request title prefix specified for validation`)
-    }
+        core.info('Validating Commit Messages')
+        if (allPullRequestCommits.length > 0) {
+          allPullRequestCommits.map(commit => {
+            // Check if commit message matches the provied regular expression
+            inputs.commitMessageRegExp
+              ? !validateRegex(commit.message, inputs.commitMessageRegExp)
+                ? core.setFailed(
+                    `Commit message failed regex - ${inputs.commitMessageRegExp}`
+                  )
+                : core.info(
+                    `Commit message passed regex - ${inputs.commitMessageRegExp}`
+                  )
+              : core.info(
+                  'Skipping: No commit message regular expression provided'
+                )
 
-    // Check if PR Title is less than max length
-    if (pr_title_max_length) {
-      if (!validateMaxLength(pr_title, pr_title_max_length)) {
-        core.setFailed(
-          `Pull Request title "${pr_title}" is longer than max length of ${pr_title_max_length} characters`
-        )
-        return
-      } else {
-        core.info(
-          `Pull Request title "${pr_title}" is less than max length of ${pr_title_max_length} characters`
-        )
-      }
-    } else {
-      core.debug(
-        `Debug: No pull request title maximum length specified for validation`
-      )
-    }
+            // Check if commit message matches the provied prefix
+            inputs.commitMessagePrefix
+              ? !validatePrefix(commit.message, inputs.commitMessagePrefix)
+                ? core.setFailed(
+                    `Commit message failed prefix - ${inputs.commitMessageRegExp}`
+                  )
+                : core.info(
+                    `Commit message passed prefix - ${inputs.commitMessageRegExp}`
+                  )
+              : core.info('Skipping: No commit message prefix provided')
 
-    // Check if PR Title is greater than min length
-    if (pr_title_min_length) {
-      if (!validateMinLength(pr_title, pr_title_min_length)) {
-        core.setFailed(
-          `Pull Request title "${pr_title}" is less than min length of ${pr_title_min_length} characters`
-        )
-        return
-      } else {
-        core.info(
-          `Pull Request title "${pr_title}" is longer than min length of ${pr_title_min_length} characters`
-        )
-      }
-    } else {
-      core.debug(
-        `Debug: No pull request title minimum length specified for validation`
-      )
-    }
+            // Check if commit message is greater than the provided min length
+            inputs.commitMessageMinLength
+              ? !validateMinLength(
+                  commit.message,
+                  inputs.commitMessageMinLength
+                )
+                ? core.setFailed(
+                    `Commit message failed min length - ${inputs.commitMessageRegExp}`
+                  )
+                : core.info(
+                    `Commit message passed min length - ${inputs.commitMessageRegExp}`
+                  )
+              : core.info('Skipping: No commit message min length provided')
 
-    if (
-      commit_message_regex ||
-      commit_message_prefix ||
-      commit_max_length ||
-      commit_min_length
-    ) {
-      core.info(`Validating Pull Request commits`)
-    }
-
-    if (pr_commits.length > 0) {
-      pr_commits.map(commit => {
-        // Check if PR title passes regex
-        if (commit_message_regex) {
-          if (!validateRegex(commit.message, commit_message_regex)) {
-            core.setFailed(
-              `"${commit.sha.substring(0, 7)}: ${
-                commit.message
-              }" failed regex check -> ${commit_message_regex}`
-            )
-            return
-          } else {
-            core.info(
-              `"${commit.sha.substring(0, 7)}: ${
-                commit.message
-              }" passed regex check -> ${commit_message_regex}`
-            )
-          }
-        } else {
-          core.debug(
-            `Debug: No commit regular expression specified for validation`
-          )
-        }
-
-        // Check if commit starts with prefix
-        if (commit_message_prefix) {
-          if (!validatePrefix(commit.message, commit_message_prefix)) {
-            core.setFailed(
-              `"${commit.sha.substring(0, 7)}: ${
-                commit.message
-              }" does not start with ${commit_message_prefix}`
-            )
-            return
-          } else {
-            core.info(
-              `"${commit.sha.substring(0, 7)}: ${
-                commit.message
-              }" starts with "${commit_message_prefix}"`
-            )
-          }
-        } else {
-          core.debug(`Debug: No commit prefix specified for validation`)
-        }
-
-        // Check if commit is less than max length
-        if (commit_max_length) {
-          if (!validateMaxLength(commit.message, commit_max_length)) {
-            core.setFailed(
-              `"${commit.sha.substring(0, 7)}: ${
-                commit.message
-              }" is longer than max length of ${commit_max_length} characters`
-            )
-            return
-          } else {
-            core.info(
-              `"${commit.sha.substring(0, 7)}: ${
-                commit.message
-              }" is less than max length of ${commit_max_length} characters`
-            )
-          }
-        } else {
-          core.debug(`Debug: No commit maximum length specified for validation`)
-        }
-
-        // Check if commit is greater than min length
-        if (commit_min_length) {
-          if (!validateMinLength(commit.message, commit_min_length)) {
-            core.setFailed(
-              `"${commit.sha.substring(0, 7)}: ${
-                commit.message
-              }" is less than min length of ${commit_min_length} characters`
-            )
-            return
-          } else {
-            core.info(
-              `"${commit.sha.substring(0, 7)}: ${
-                commit.message
-              }" is longer than min length of ${commit_min_length} characters`
-            )
-          }
-        } else {
-          core.debug(`Debug: No commit minimum length specified for validation`)
+            // Check if commit message is less than the provided max length
+            inputs.commitMessageMaxLength
+              ? !validateMinLength(
+                  commit.message,
+                  inputs.commitMessageMaxLength
+                )
+                ? core.setFailed(
+                    `Commit message failed max length - ${inputs.commitMessageRegExp}`
+                  )
+                : core.info(
+                    `Commit message passed max length - ${inputs.commitMessageRegExp}`
+                  )
+              : core.info('Skipping: No commit message max length provided')
+          })
         }
       })
-    }
+      .catch(error => {
+        if (error instanceof Error) core.setFailed(error.message)
+      })
   } catch (error) {
     if (error instanceof Error) core.setFailed(error.message)
   }
