@@ -1,0 +1,40 @@
+name: 'Standards Bot'
+description: 'A Github Action to enforce pull request and commit standards'
+author: 'chalharb'
+inputs:
+  pr-title-regex:
+    description: 'Regex to validate the pull request title'
+    required: false
+  pr-title-prefix:
+    description: 'Comma separated list that all pull requests must start with'
+    required: false
+  pr-title-min-length:
+    description: 'Min length of pull request title'
+    required: false
+  pr-title-max-length:
+    description: 'Max length of pull request title'
+    required: false
+  commit-message-regex:
+    description: 'Regex to validate the commit messages'
+    required: false
+  commit-message-prefix:
+    description: 'Prefix that all commits must start with'
+    required: false
+  commit-message-min-length:
+    description: 'Min length of commit message'
+    required: false
+  commit-message-max-length:
+    description: 'Max length of commit message'
+    required: false
+  github-token:
+    description: >
+      Personal access token (PAT) used to fetch the repository. The PAT is configured
+      with the local git config, which enables your scripts to run authenticated git
+      commands. The post-job step removes the PAT.
+      We recommend using a service account with the least permissions necessary.
+      Also when generating a new PAT, select the least scopes necessary.
+    required: true
+    default: ${{ github.token }}
+runs:
+  using: 'node16'
+  main: 'dist/index.js'

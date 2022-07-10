@@ -1,0 +1,31 @@
+name: 'build-test'
+on:
+  pull_request:
+    branches:
+      - develop
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: |
+          npm install
+      - run: |
+          npm run all
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ./
+        name: 'Testing Action'
+        with:
+          pr-title-regex: '^(build|chore|feat|fix|docs|refactor|perf|style|test):\s[A-Z]{1}'
+          pr-title-prefix: 'build,chore,feat,fix,docs,refactor,perf,style,test'
+          pr-title-min-length: 10
+          pr-title-max-length: 70
+          commit-message-regex: '^(build|chore|feat|fix|docs|refactor|perf|style|test):\s[A-Z]{1}'
+          commit-message-prefix: 'build,chore,feat,fix,docs,refactor,perf,style,test'
+          commit-message-min-length: 10
+          commit-message-max-length: 70
+          github-token: ${{ secrets.GH_TOKEN }}
