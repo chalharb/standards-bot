@@ -179,7 +179,7 @@ function run() {
                         : core.debug(yellowText('Commit Message Min Length - Skipped'));
                     // Check if commit message is less than the provided max length
                     inputs.commitMessageMaxLength
-                        ? !(0, functions_1.validateMinLength)(commit.message, inputs.commitMessageMaxLength)
+                        ? !(0, functions_1.validateMaxLength)(commit.message, inputs.commitMessageMaxLength)
                             ? core.setFailed('Commit Message Max Length - Failed')
                             : core.info(greenText('- Commit Message Max Length - Passed'))
                         : core.debug(yellowText('Commit Message Max Length - Skipped'));

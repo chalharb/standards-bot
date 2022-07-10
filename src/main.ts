@@ -144,7 +144,7 @@ async function run(): Promise<void> {
 
         // Check if commit message is less than the provided max length
         inputs.commitMessageMaxLength
-          ? !validateMinLength(commit.message, inputs.commitMessageMaxLength)
+          ? !validateMaxLength(commit.message, inputs.commitMessageMaxLength)
             ? core.setFailed('Commit Message Max Length - Failed')
             : core.info(greenText('- Commit Message Max Length - Passed'))
           : core.debug(yellowText('Commit Message Max Length - Skipped'))
