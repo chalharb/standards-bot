@@ -131,21 +131,18 @@ function run() {
                     : core.info(greenText('Pull Request Title RegExp - Passed'))
                 : core.debug(yellowText('Pull Request Title RegExp - Skipped'));
             // Check if a pull request title starts with the provided prefix
-            core.info(cyanText('Checking Pull Request Title Prefix'));
             inputs.prTitlePrefix
                 ? !(0, functions_1.validatePrefix)(data.title, inputs.prTitlePrefix)
                     ? core.setFailed('Pull Request Title RegExp - Failed')
                     : core.info(greenText('Pull Request Title Prefix - Passed'))
                 : core.debug(yellowText('Pull Request Title Prefix - Skipped'));
             // Check if a pull request title is greater than the provided min length
-            core.info(cyanText('Checking Pull Request Title Min Length'));
             inputs.prTitleMinLength
                 ? !(0, functions_1.validateMinLength)(data.title, inputs.prTitleMinLength)
                     ? core.setFailed('Pull Request Title Min Length - Failed')
                     : core.info(greenText('Pull Request Title Min Length - Passed'))
                 : core.debug(yellowText('Pull Request Title Min Length - Skipped'));
             // Check if a pull request title is less than the provided max length
-            core.info(cyanText('Checking Pull Request Title Max Length'));
             inputs.prTitleMaxLength
                 ? !(0, functions_1.validateMaxLength)(data.title, inputs.prTitleMaxLength)
                     ? core.setFailed('Pull Request Title Max Length - Failed')

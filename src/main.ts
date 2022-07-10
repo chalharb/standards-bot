@@ -90,7 +90,6 @@ async function run(): Promise<void> {
       : core.debug(yellowText('Pull Request Title RegExp - Skipped'))
 
     // Check if a pull request title starts with the provided prefix
-    core.info(cyanText('Checking Pull Request Title Prefix'))
     inputs.prTitlePrefix
       ? !validatePrefix(data.title, inputs.prTitlePrefix)
         ? core.setFailed('Pull Request Title RegExp - Failed')
@@ -98,7 +97,6 @@ async function run(): Promise<void> {
       : core.debug(yellowText('Pull Request Title Prefix - Skipped'))
 
     // Check if a pull request title is greater than the provided min length
-    core.info(cyanText('Checking Pull Request Title Min Length'))
     inputs.prTitleMinLength
       ? !validateMinLength(data.title, inputs.prTitleMinLength)
         ? core.setFailed('Pull Request Title Min Length - Failed')
@@ -106,7 +104,6 @@ async function run(): Promise<void> {
       : core.debug(yellowText('Pull Request Title Min Length - Skipped'))
 
     // Check if a pull request title is less than the provided max length
-    core.info(cyanText('Checking Pull Request Title Max Length'))
     inputs.prTitleMaxLength
       ? !validateMaxLength(data.title, inputs.prTitleMaxLength)
         ? core.setFailed('Pull Request Title Max Length - Failed')
