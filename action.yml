@@ -20,10 +20,10 @@ inputs:
   commit-message-prefix:
     description: 'Prefix that all commits must start with'
     required: false
-  commit-min-length:
+  commit-message-min-length:
     description: 'Min length of commit message'
     required: false
-  commit-max-length:
+  commit-message-max-length:
     description: 'Max length of commit message'
     required: false
   github-token:

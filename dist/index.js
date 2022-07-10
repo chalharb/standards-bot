@@ -108,8 +108,8 @@ function run() {
                 prTitleMaxLength: parseInt(core.getInput('pr-title-max-length')) || undefined,
                 commitMessageRegExp: core.getInput('commit-message-regex') || undefined,
                 commitMessagePrefix: core.getInput('commit-message-prefix') || undefined,
-                commitMessageMinLength: parseInt(core.getInput('commit-min-length')) || undefined,
-                commitMessageMaxLength: parseInt(core.getInput('commit-max-length')) || undefined
+                commitMessageMinLength: parseInt(core.getInput('commit-message-min-length')) || undefined,
+                commitMessageMaxLength: parseInt(core.getInput('commit-message-max-length')) || undefined
             };
             // Check if an auth token is provided to fail early
             if (!inputs.authToken) {

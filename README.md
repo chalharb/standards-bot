@@ -4,17 +4,17 @@ Are tired of checking to make sure pull requests follow your standards? Me too..
 
 ## Inputs
 
-| input                   | required | type   | description                                                                                         |
-| ----------------------- | -------- | ------ | --------------------------------------------------------------------------------------------------- |
-| `github-token`          | true     | string | The GitHub Actions token e.g. `secrets.GITHUB_TOKEN`                                                |
-| `pr-title-regex`        | false    | string | A regular expression that is used to check if pull reuqest title matches the given expression       |
-| `pr-title-prefix`       | false    | string | A string that is used to validate pull request title starts with given string                       |
-| `pr-title-min-length`   | false    | number | A number that checks if pull request title is more than the minimum length                          |
-| `pr-title-max-length`   | false    | number | A number that checks if pull request title is less than the maximum length                          |
-| `commit-message-regex`  | false    | string | A regular expression that is used to check if pull reuqest commits match the given expression       |
-| `commit-message-prefix` | false    | string | A string that is used to validate all commit messages in a pull request start with the given string |
-| `commit-min-length`     | false    | number | A number that checks if pull request title is more than the minimum length                          |
-| `commit-max-length`     | false    | number | A number that checks if pull request title is less than the maximum length                          |
+| input                       | required | description                                                                                         |
+| --------------------------- | -------- | --------------------------------------------------------------------------------------------------- |
+| `github-token`              | true     | The GitHub Actions token e.g. `secrets.GITHUB_TOKEN`                                                |
+| `pr-title-regex`            | false    | A regular expression that is used to check if pull reuqest title matches the given expression       |
+| `pr-title-prefix`           | false    | A string that is used to validate pull request title starts with given string                       |
+| `pr-title-min-length`       | false    | A number that checks if pull request title is more than the minimum length                          |
+| `pr-title-max-length`       | false    | A number that checks if pull request title is less than the maximum length                          |
+| `commit-message-regex`      | false    | A regular expression that is used to check if pull reuqest commits match the given expression       |
+| `commit-message-prefix`     | false    | A string that is used to validate all commit messages in a pull request start with the given string |
+| `commit-message-min-length` | false    | A number that checks if pull request title is more than the minimum length                          |
+| `commit-message-max-length` | false    | A number that checks if pull request title is less than the maximum length                          |
 
 ## Usage
 

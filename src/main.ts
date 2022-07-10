@@ -54,9 +54,9 @@ async function run(): Promise<void> {
       commitMessageRegExp: core.getInput('commit-message-regex') || undefined,
       commitMessagePrefix: core.getInput('commit-message-prefix') || undefined,
       commitMessageMinLength:
-        parseInt(core.getInput('commit-min-length')) || undefined,
+        parseInt(core.getInput('commit-message-min-length')) || undefined,
       commitMessageMaxLength:
-        parseInt(core.getInput('commit-max-length')) || undefined
+        parseInt(core.getInput('commit-message-max-length')) || undefined
     }
 
     // Check if an auth token is provided to fail early
