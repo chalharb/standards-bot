@@ -1,26 +1,17 @@
 import * as core from '@actions/core'
 import * as github from '@actions/github'
-import styles from 'ansi-styles'
+
 import {
   validateRegex,
   validatePrefix,
   validateMaxLength,
-  validateMinLength
+  validateMinLength,
+  cyanText,
+  greenText,
+  yellowText
 } from './functions'
 
 import {PullRequestData} from './types'
-
-function cyanText(text: string): string {
-  return `${styles.cyan.open}${text}${styles.cyan.close}`
-}
-
-function greenText(text: string): string {
-  return `${styles.green.open}${text}${styles.green.close}`
-}
-
-function yellowText(text: string): string {
-  return `${styles.yellow.open}${text}${styles.yellow.close}`
-}
 
 async function run(): Promise<void> {
   try {
