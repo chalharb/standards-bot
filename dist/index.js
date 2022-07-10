@@ -123,31 +123,35 @@ function run() {
             core.debug('Fetching Pull Request Data');
             const { data } = yield octokit.rest.pulls.get(Object.assign({}, pullRequestData));
             core.info(cyanText(boldText('Validating Pull Request Title')));
-            core.info('---------------------------------------------------------------');
+            core.info(cyanText('---------------------------------------------------------------'));
             // Check if a pull request title matches the provied Regular Expression
+            core.info(cyanText('Checking Pull Request Title RegExp'));
             inputs.prTitleRegExp
                 ? !(0, functions_1.validateRegex)(data.title, inputs.prTitleRegExp)
                     ? core.setFailed(`PR title failed regex - ${inputs.prTitleRegExp}`)
-                    : core.info(greenText(`PR title passed regex - ${inputs.prTitleRegExp}`))
-                : core.info(yellowText('Skipping: No PR title regular expression provided'));
+                    : core.info(greenText(`- PR title passed regex - ${inputs.prTitleRegExp}`))
+                : core.info(yellowText('- Skipping: No PR title regular expression provided'));
             // Check if a pull request title starts with the provided prefix
+            core.info(cyanText('Checking Pull Request Title Prefix'));
             inputs.prTitlePrefix
                 ? !(0, functions_1.validatePrefix)(data.title, inputs.prTitlePrefix)
                     ? core.setFailed(`PR title failed prefix - ${inputs.prTitleRegExp}`)
-                    : core.info(greenText(`PR title passed prefix - ${inputs.prTitleRegExp}`))
-                : core.info(yellowText('Skipping: No PR title prefix provided'));
+                    : core.info(greenText(`- PR title passed prefix - ${inputs.prTitleRegExp}`))
+                : core.info(yellowText('- Skipping: No PR title prefix provided'));
             // Check if a pull request title is greater than the provided min length
+            core.info(cyanText('Checking Pull Request Title Min Length'));
             inputs.prTitleMinLength
                 ? !(0, functions_1.validateMinLength)(data.title, inputs.prTitleMinLength)
                     ? core.setFailed(`PR title failed min length - ${inputs.prTitleRegExp}`)
-                    : core.info(greenText(`PR title passed min length - ${inputs.prTitleRegExp}`))
-                : core.info(yellowText('Skipping: No PR title min length provided'));
+                    : core.info(greenText(`- PR title passed min length - ${inputs.prTitleRegExp}`))
+                : core.info(yellowText('- Skipping: No PR title min length provided'));
             // Check if a pull request title is less than the provided max length
+            core.info(cyanText('Checking Pull Request Title Max Length'));
             inputs.prTitleMaxLength
                 ? !(0, functions_1.validateMaxLength)(data.title, inputs.prTitleMaxLength)
                     ? core.setFailed(`PR title failed max length - ${inputs.prTitleRegExp}`)
-                    : core.info(greenText(`PR title passed max length - ${inputs.prTitleRegExp}`))
-                : core.info(yellowText('Skipping: No PR title max length provided'));
+                    : core.info(greenText(`- PR title passed max length - ${inputs.prTitleRegExp}`))
+                : core.info(yellowText('- Skipping: No PR title max length provided'));
             core.debug('Fetching Commit Data');
             const { data: commits } = yield octokit.rest.pulls.listCommits(Object.assign({}, pullRequestData));
             core.debug('Generating commit message array');
@@ -162,7 +166,7 @@ function run() {
             });
             core.info('');
             core.info(cyanText(boldText('Validating Commit Messages')));
-            core.info('---------------------------------------------------------------');
+            core.info(cyanText('---------------------------------------------------------------'));
             if (allPullRequestCommits.length > 0) {
                 allPullRequestCommits.map(commit => {
                     core.info(`Validating commit: ${commit.sha} ${commit.message}`);
