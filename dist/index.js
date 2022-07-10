@@ -169,30 +169,35 @@ function run() {
             core.info(cyanText('---------------------------------------------------------------'));
             if (allPullRequestCommits.length > 0) {
                 allPullRequestCommits.map(commit => {
-                    core.info(`Validating commit: ${commit.sha} ${commit.message}`);
+                    core.info(cyanText(`Validating commit -> ${commit.sha} ${commit.message}`));
+                    cyanText('---------------------------------');
                     // Check if commit message matches the provied regular expression
+                    core.info(cyanText('Checking Commit Message RegExp'));
                     inputs.commitMessageRegExp
                         ? !(0, functions_1.validateRegex)(commit.message, inputs.commitMessageRegExp)
                             ? core.setFailed(`Commit message failed regex - ${inputs.commitMessageRegExp}`)
-                            : core.info(greenText(`Commit message passed regex - ${inputs.commitMessageRegExp}`))
+                            : core.info(greenText(`- Commit message passed regex - ${inputs.commitMessageRegExp}`))
                         : core.info(yellowText('- Skipping: No commit message regular expression provided'));
                     // Check if commit message matches the provied prefix
+                    core.info(cyanText('Checking Commit Message Prefix'));
                     inputs.commitMessagePrefix
                         ? !(0, functions_1.validatePrefix)(commit.message, inputs.commitMessagePrefix)
                             ? core.setFailed(`Commit message failed prefix - ${inputs.commitMessageRegExp}`)
-                            : core.info(greenText(`Commit message passed prefix - ${inputs.commitMessageRegExp}`))
+                            : core.info(greenText(`- Commit message passed prefix - ${inputs.commitMessageRegExp}`))
                         : core.info(yellowText('- Skipping: No commit message prefix provided'));
                     // Check if commit message is greater than the provided min length
+                    core.info(cyanText('Checking Commit Message Min Length'));
                     inputs.commitMessageMinLength
                         ? !(0, functions_1.validateMinLength)(commit.message, inputs.commitMessageMinLength)
                             ? core.setFailed(`Commit message failed min length - ${inputs.commitMessageRegExp}`)
-                            : core.info(greenText(`Commit message passed min length - ${inputs.commitMessageRegExp}`))
+                            : core.info(greenText(`- Commit message passed min length - ${inputs.commitMessageRegExp}`))
                         : core.info(yellowText('- Skipping: No commit message min length provided'));
                     // Check if commit message is less than the provided max length
+                    core.info(cyanText('Checking Commit Message Max Length'));
                     inputs.commitMessageMaxLength
                         ? !(0, functions_1.validateMinLength)(commit.message, inputs.commitMessageMaxLength)
                             ? core.setFailed(`Commit message failed max length - ${inputs.commitMessageRegExp}`)
-                            : core.info(greenText(`Commit message passed max length - ${inputs.commitMessageRegExp}`))
+                            : core.info(greenText(`- Commit message passed max length - ${inputs.commitMessageRegExp}`))
                         : core.info(yellowText('- Skipping: No commit message max length provided'));
                 });
             }

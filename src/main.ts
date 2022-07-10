@@ -146,8 +146,12 @@ async function run(): Promise<void> {
     )
     if (allPullRequestCommits.length > 0) {
       allPullRequestCommits.map(commit => {
-        core.info(`Validating commit: ${commit.sha} ${commit.message}`)
+        core.info(
+          cyanText(`Validating commit -> ${commit.sha} ${commit.message}`)
+        )
+        cyanText('---------------------------------')
         // Check if commit message matches the provied regular expression
+        core.info(cyanText('Checking Commit Message RegExp'))
         inputs.commitMessageRegExp
           ? !validateRegex(commit.message, inputs.commitMessageRegExp)
             ? core.setFailed(
@@ -155,7 +159,7 @@ async function run(): Promise<void> {
               )
             : core.info(
                 greenText(
-                  `Commit message passed regex - ${inputs.commitMessageRegExp}`
+                  `- Commit message passed regex - ${inputs.commitMessageRegExp}`
                 )
               )
           : core.info(
@@ -165,6 +169,7 @@ async function run(): Promise<void> {
             )
 
         // Check if commit message matches the provied prefix
+        core.info(cyanText('Checking Commit Message Prefix'))
         inputs.commitMessagePrefix
           ? !validatePrefix(commit.message, inputs.commitMessagePrefix)
             ? core.setFailed(
@@ -172,7 +177,7 @@ async function run(): Promise<void> {
               )
             : core.info(
                 greenText(
-                  `Commit message passed prefix - ${inputs.commitMessageRegExp}`
+                  `- Commit message passed prefix - ${inputs.commitMessageRegExp}`
                 )
               )
           : core.info(
@@ -180,6 +185,7 @@ async function run(): Promise<void> {
             )
 
         // Check if commit message is greater than the provided min length
+        core.info(cyanText('Checking Commit Message Min Length'))
         inputs.commitMessageMinLength
           ? !validateMinLength(commit.message, inputs.commitMessageMinLength)
             ? core.setFailed(
@@ -187,7 +193,7 @@ async function run(): Promise<void> {
               )
             : core.info(
                 greenText(
-                  `Commit message passed min length - ${inputs.commitMessageRegExp}`
+                  `- Commit message passed min length - ${inputs.commitMessageRegExp}`
                 )
               )
           : core.info(
@@ -195,6 +201,7 @@ async function run(): Promise<void> {
             )
 
         // Check if commit message is less than the provided max length
+        core.info(cyanText('Checking Commit Message Max Length'))
         inputs.commitMessageMaxLength
           ? !validateMinLength(commit.message, inputs.commitMessageMaxLength)
             ? core.setFailed(
@@ -202,7 +209,7 @@ async function run(): Promise<void> {
               )
             : core.info(
                 greenText(
-                  `Commit message passed max length - ${inputs.commitMessageRegExp}`
+                  `- Commit message passed max length - ${inputs.commitMessageRegExp}`
                 )
               )
           : core.info(
