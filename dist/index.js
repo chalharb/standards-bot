@@ -125,33 +125,32 @@ function run() {
             core.info(cyanText(boldText('Validating Pull Request Title')));
             core.info(cyanText('---------------------------------------------------------------'));
             // Check if a pull request title matches the provied Regular Expression
-            core.info(cyanText('Checking Pull Request Title RegExp'));
             inputs.prTitleRegExp
                 ? !(0, functions_1.validateRegex)(data.title, inputs.prTitleRegExp)
-                    ? core.setFailed(`PR title failed regex - ${inputs.prTitleRegExp}`)
-                    : core.info(greenText(`- PR title passed regex - ${inputs.prTitleRegExp}`))
-                : core.info(yellowText('- Skipping: No PR title regular expression provided'));
+                    ? core.setFailed('Pull Request Title RegExp - Failed')
+                    : core.info(greenText('Pull Request Title RegExp - Passed'))
+                : core.debug(yellowText('Pull Request Title RegExp - Skipped'));
             // Check if a pull request title starts with the provided prefix
             core.info(cyanText('Checking Pull Request Title Prefix'));
             inputs.prTitlePrefix
                 ? !(0, functions_1.validatePrefix)(data.title, inputs.prTitlePrefix)
-                    ? core.setFailed(`PR title failed prefix - ${inputs.prTitleRegExp}`)
-                    : core.info(greenText(`- PR title passed prefix - ${inputs.prTitleRegExp}`))
-                : core.info(yellowText('- Skipping: No PR title prefix provided'));
+                    ? core.setFailed('Pull Request Title RegExp - Failed')
+                    : core.info(greenText('Pull Request Title Prefix - Passed'))
+                : core.debug(yellowText('Pull Request Title Prefix - Skipped'));
             // Check if a pull request title is greater than the provided min length
             core.info(cyanText('Checking Pull Request Title Min Length'));
             inputs.prTitleMinLength
                 ? !(0, functions_1.validateMinLength)(data.title, inputs.prTitleMinLength)
-                    ? core.setFailed(`PR title failed min length - ${inputs.prTitleRegExp}`)
-                    : core.info(greenText(`- PR title passed min length - ${inputs.prTitleRegExp}`))
-                : core.info(yellowText('- Skipping: No PR title min length provided'));
+                    ? core.setFailed('Pull Request Title Min Length - Failed')
+                    : core.info(greenText('Pull Request Title Min Length - Passed'))
+                : core.debug(yellowText('Pull Request Title Min Length - Skipped'));
             // Check if a pull request title is less than the provided max length
             core.info(cyanText('Checking Pull Request Title Max Length'));
             inputs.prTitleMaxLength
                 ? !(0, functions_1.validateMaxLength)(data.title, inputs.prTitleMaxLength)
-                    ? core.setFailed(`PR title failed max length - ${inputs.prTitleRegExp}`)
-                    : core.info(greenText(`- PR title passed max length - ${inputs.prTitleRegExp}`))
-                : core.info(yellowText('- Skipping: No PR title max length provided'));
+                    ? core.setFailed('Pull Request Title Max Length - Failed')
+                    : core.info(greenText('Pull Request Title Max Length - Passed'))
+                : core.debug(yellowText('Pull Request Title Max Length - Skipped'));
             core.debug('Fetching Commit Data');
             const { data: commits } = yield octokit.rest.pulls.listCommits(Object.assign({}, pullRequestData));
             core.debug('Generating commit message array');
@@ -172,33 +171,29 @@ function run() {
                     core.info(cyanText(`Validating commit -> ${commit.sha} ${commit.message}`));
                     cyanText('---------------------------------');
                     // Check if commit message matches the provied regular expression
-                    core.info(cyanText('Checking Commit Message RegExp'));
                     inputs.commitMessageRegExp
                         ? !(0, functions_1.validateRegex)(commit.message, inputs.commitMessageRegExp)
-                            ? core.setFailed(`Commit message failed regex - ${inputs.commitMessageRegExp}`)
-                            : core.info(greenText(`- Commit message passed regex - ${inputs.commitMessageRegExp}`))
-                        : core.info(yellowText('- Skipping: No commit message regular expression provided'));
+                            ? core.setFailed('Commit Message RegExp - Failed')
+                            : core.info(greenText('Commit Message RegExp - Passed'))
+                        : core.debug(yellowText('Commit Message RegExp - Skipped'));
                     // Check if commit message matches the provied prefix
-                    core.info(cyanText('Checking Commit Message Prefix'));
                     inputs.commitMessagePrefix
                         ? !(0, functions_1.validatePrefix)(commit.message, inputs.commitMessagePrefix)
-                            ? core.setFailed(`Commit message failed prefix - ${inputs.commitMessageRegExp}`)
-                            : core.info(greenText(`- Commit message passed prefix - ${inputs.commitMessageRegExp}`))
-                        : core.info(yellowText('- Skipping: No commit message prefix provided'));
+                            ? core.setFailed('Commit Message Prefix - Failed')
+                            : core.info(greenText('Commit Message Prefix - Passed'))
+                        : core.debug(yellowText('Commit Message Prefix - Skipped'));
                     // Check if commit message is greater than the provided min length
-                    core.info(cyanText('Checking Commit Message Min Length'));
                     inputs.commitMessageMinLength
                         ? !(0, functions_1.validateMinLength)(commit.message, inputs.commitMessageMinLength)
-                            ? core.setFailed(`Commit message failed min length - ${inputs.commitMessageRegExp}`)
-                            : core.info(greenText(`- Commit message passed min length - ${inputs.commitMessageRegExp}`))
-                        : core.info(yellowText('- Skipping: No commit message min length provided'));
+                            ? core.setFailed('Commit Message Min Length - Failed')
+                            : core.info(greenText('Commit Message Min Length - Passed'))
+                        : core.debug(yellowText('Commit Message Min Length - Skipped'));
                     // Check if commit message is less than the provided max length
-                    core.info(cyanText('Checking Commit Message Max Length'));
                     inputs.commitMessageMaxLength
                         ? !(0, functions_1.validateMinLength)(commit.message, inputs.commitMessageMaxLength)
-                            ? core.setFailed(`Commit message failed max length - ${inputs.commitMessageRegExp}`)
-                            : core.info(greenText(`- Commit message passed max length - ${inputs.commitMessageRegExp}`))
-                        : core.info(yellowText('- Skipping: No commit message max length provided'));
+                            ? core.setFailed('Commit Message Max Length - Failed')
+                            : core.info(greenText('Commit Message Max Length - Passed'))
+                        : core.debug(yellowText('Commit Message Max Length - Skipped'));
                 });
             }
         }
