@@ -181,11 +181,13 @@ async function run(): Promise<void> {
       `## 🚨 Standards Bot 🚨 \n` +
       `You have errors that need to be address before completing this pull request \n\n` +
       `### Pull Request Title \n` +
-      `- Does not match RegExp: ^(build|chore|feat|fix|docs|refactor|perf|style|test):\\s[A-Z]{1}` +
-      `- Does not start with prefix: build,chore,feat,fix,docs,refactor,perf,style,test \n\n` +
+      `- Does not match RegExp: \`^(build|chore|feat|fix|docs|refactor|perf|style|test):\\s[A-Z]{1}\`` +
+      `- Does not start with prefix: \`build,chore,feat,fix,docs,refactor,perf,style,test\` \n\n` +
       `### Commit Messages \n` +
-      `- 04ed740 Testing Commit message faiure Does not match RegExp: ^(build|chore|feat|fix|docs|refactor|perf|style|test):\\s[A-Z]{1} \n` +
-      `- 04ed740 Testing Commit message faiure Does not start with prefix: build,chore,feat,fix,docs,refactor,perf,style,test \n`
+      `- 04ed740 Testing Commit message faiure \n` +
+      `  - Does not match RegExp: \`^(build|chore|feat|fix|docs|refactor|perf|style|test):\\s[A-Z]{1}\` \n` +
+      `- 04ed740 Testing Commit message faiure \n` +
+      `  - Does not start with prefix: \`build,chore,feat,fix,docs,refactor,perf,style,test\` \n`
 
     await test.issues.createComment({
       ...context.repo,
