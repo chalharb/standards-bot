@@ -177,10 +177,20 @@ async function run(): Promise<void> {
       auth: inputs.authToken
     })
 
+    const messageTemplate: string =
+      `## 🚨 Standards Bot 🚨 \n` +
+      `You have errors that need to be address before completing this pull request \n\n` +
+      `### Pull Request Title \n` +
+      `- Does not match RegExp: ^(build|chore|feat|fix|docs|refactor|perf|style|test):\\s[A-Z]{1}` +
+      `- Does not start with prefix: build,chore,feat,fix,docs,refactor,perf,style,test \n\n` +
+      `### Commit Messages \n` +
+      `- 04ed740 Testing Commit message faiure Does not match RegExp: ^(build|chore|feat|fix|docs|refactor|perf|style|test):\\s[A-Z]{1} \n` +
+      `- 04ed740 Testing Commit message faiure Does not start with prefix: build,chore,feat,fix,docs,refactor,perf,style,test \n`
+
     await test.issues.createComment({
       ...context.repo,
       issue_number: pullRequestData.pull_number,
-      body: '# Can I use this PR?'
+      body: messageTemplate
     })
   } catch (error) {
     if (error instanceof Error) core.setFailed(error.message)
