@@ -1,5 +1,6 @@
 import * as core from '@actions/core'
 import * as github from '@actions/github'
+import {Octokit} from '@octokit/rest'
 
 import {
   validateRegex,
@@ -170,6 +171,17 @@ async function run(): Promise<void> {
 
     core.info(JSON.stringify(pullRequestIssues))
     core.info(JSON.stringify(commitMessageIssues))
+
+    const context = github.context
+    const test = new Octokit({
+      auth: inputs.authToken
+    })
+
+    await test.issues.createComment({
+      ...context.repo,
+      issue_number: pullRequestData.pull_number,
+      body: '# Can I use this PR?'
+    })
   } catch (error) {
     if (error instanceof Error) core.setFailed(error.message)
   }
