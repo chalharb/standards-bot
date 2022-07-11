@@ -79,7 +79,7 @@ async function run(): Promise<void> {
     // Check if a pull request title starts with the provided prefix
     inputs.prTitlePrefix
       ? !validatePrefix(data.title, inputs.prTitlePrefix)
-        ? (core.setFailed('Pull Request Title RegExp - Failed'),
+        ? (core.setFailed('Pull Request Title Prefix - Failed'),
           pullRequestIssues.push(
             `Does not start with prefix: ${inputs.prTitlePrefix}`
           ))

@@ -135,7 +135,7 @@ function run() {
             // Check if a pull request title starts with the provided prefix
             inputs.prTitlePrefix
                 ? !(0, functions_1.validatePrefix)(data.title, inputs.prTitlePrefix)
-                    ? (core.setFailed('Pull Request Title RegExp - Failed'),
+                    ? (core.setFailed('Pull Request Title Prefix - Failed'),
                         pullRequestIssues.push(`Does not start with prefix: ${inputs.prTitlePrefix}`))
                     : core.info((0, functions_1.greenText)('- Pull Request Title Prefix - Passed'))
                 : core.debug((0, functions_1.yellowText)('Pull Request Title Prefix - Skipped'));
