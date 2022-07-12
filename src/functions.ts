@@ -1,4 +1,5 @@
 import styles from 'ansi-styles'
+import {StatusObject} from './types'
 
 export function validateRegex(text: string, pattern: string): boolean {
   return new RegExp(pattern).test(text)
@@ -26,4 +27,14 @@ export function greenText(text: string): string {
 
 export function yellowText(text: string): string {
   return `${styles.yellow.open}${text}${styles.yellow.close}`
+}
+
+export function setStatusObject(
+  state: boolean | 'debug',
+  message: string
+): StatusObject {
+  return {
+    state,
+    message
+  }
 }
