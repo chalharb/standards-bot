@@ -227,7 +227,6 @@ function run() {
                     core.info(status.message);
                 }
             });
-            console.log(JSON.stringify(status));
         }
         catch (error) {
             if (error instanceof Error)
