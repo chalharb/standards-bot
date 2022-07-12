@@ -157,12 +157,23 @@ function run() {
                     ? (0, functions_1.setStatusObject)(false, `${msg} Failed`)
                     : (0, functions_1.setStatusObject)(true, `${msg} Passed`)
                 : (0, functions_1.setStatusObject)(false, `${msg} Skipped`);
-            let status = {
+            let status = [
                 prTitleRegExpStatus,
                 prTitlePrefixStatus,
                 prTitleMinLenStatus,
                 prTitleMaxLenStatus
-            };
+            ];
+            status.map(status => {
+                if (status.state === 'debug') {
+                    core.debug(status.message);
+                }
+                else if (status.state === false) {
+                    core.setFailed(status.message);
+                }
+                else {
+                    core.info(status.message);
+                }
+            });
             console.log(JSON.stringify(status));
         }
         catch (error) {
