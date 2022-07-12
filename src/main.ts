@@ -1,6 +1,5 @@
 import * as core from '@actions/core'
 import * as github from '@actions/github'
-
 import {
   validateRegex,
   validatePrefix,
@@ -54,10 +53,10 @@ async function run(): Promise<void> {
       return
     }
 
-    const octokit = github.getOctokit(inputs.authToken)
+    const client = github.getOctokit(inputs.authToken)
 
     core.debug('Fetching Pull Request Data')
-    const {data} = await octokit.rest.pulls.get({
+    const {data} = await client.rest.pulls.get({
       ...pullRequestData
     })
 
@@ -94,7 +93,7 @@ async function run(): Promise<void> {
       : setStatusObject(false, `${msg} Skipped`)
 
     core.debug('Fetching Commit Data')
-    const {data: commits} = await octokit.rest.pulls.listCommits({
+    const {data: commits} = await client.rest.pulls.listCommits({
       ...pullRequestData
     })
 
@@ -171,6 +170,13 @@ async function run(): Promise<void> {
     })
 
     console.log(JSON.stringify(github.context))
+
+    await client.rest.issues.createComment({
+      issue_number: github.context.issue.number,
+      owner: github.context.repo.owner,
+      repo: github.context.repo.repo,
+      body: '👋 Thanks for reporting!'
+    })
   } catch (error) {
     if (error instanceof Error) core.setFailed(error.message)
   }
