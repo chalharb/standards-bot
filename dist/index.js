@@ -227,6 +227,7 @@ function run() {
                     core.info(status.message);
                 }
             });
+            console.log(github.context);
         }
         catch (error) {
             if (error instanceof Error)

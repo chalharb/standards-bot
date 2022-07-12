@@ -169,6 +169,8 @@ async function run(): Promise<void> {
         core.info(status.message)
       }
     })
+
+    console.log(JSON.stringify(github.context))
   } catch (error) {
     if (error instanceof Error) core.setFailed(error.message)
   }
