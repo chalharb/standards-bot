@@ -141,12 +141,14 @@ async function run(): Promise<void> {
             : setStatusObject(true, `${msg} Passed`)
           : setStatusObject(false, `${msg} Skipped`)
 
-        commitMsgStatus = [
+        const tempCommitMsgStatus = [
           commitMsgRegExpStatus,
           commitMsgPrefixStatus,
           commitMsgMinLenStatus,
           commitMsgMaxLenStatus
         ]
+
+        commitMsgStatus.push(...tempCommitMsgStatus)
       })
     }
 

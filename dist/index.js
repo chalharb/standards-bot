@@ -200,12 +200,13 @@ function run() {
                             ? (0, functions_1.setStatusObject)(false, `${msg} Failed`)
                             : (0, functions_1.setStatusObject)(true, `${msg} Passed`)
                         : (0, functions_1.setStatusObject)(false, `${msg} Skipped`);
-                    commitMsgStatus = [
+                    const tempCommitMsgStatus = [
                         commitMsgRegExpStatus,
                         commitMsgPrefixStatus,
                         commitMsgMinLenStatus,
                         commitMsgMaxLenStatus
                     ];
+                    commitMsgStatus.push(...tempCommitMsgStatus);
                 });
             }
             let status = [
