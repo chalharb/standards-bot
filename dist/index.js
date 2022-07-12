@@ -10,7 +10,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.yellowText = exports.greenText = exports.cyanText = exports.validateMinLength = exports.validateMaxLength = exports.validatePrefix = exports.validateRegex = void 0;
+exports.setStatusObject = exports.yellowText = exports.greenText = exports.cyanText = exports.validateMinLength = exports.validateMaxLength = exports.validatePrefix = exports.validateRegex = void 0;
 const ansi_styles_1 = __importDefault(__nccwpck_require__(2068));
 function validateRegex(text, pattern) {
     return new RegExp(pattern).test(text);
@@ -40,6 +40,13 @@ function yellowText(text) {
     return `${ansi_styles_1.default.yellow.open}${text}${ansi_styles_1.default.yellow.close}`;
 }
 exports.yellowText = yellowText;
+function setStatusObject(state, message) {
+    return {
+        state,
+        message
+    };
+}
+exports.setStatusObject = setStatusObject;
 
 
 /***/ }),
@@ -122,31 +129,34 @@ function run() {
             const octokit = github.getOctokit(inputs.authToken);
             core.debug('Fetching Pull Request Data');
             const { data } = yield octokit.rest.pulls.get(Object.assign({}, pullRequestData));
-            core.info((0, functions_1.cyanText)(`Validating Pull Request Title -> ${data.title}`));
-            // Check if a pull request title matches the provied Regular Expression
-            inputs.prTitleRegExp
+            // Regex
+            let msg = 'Pull Request Title RegExp:';
+            const prTitleRegExpStatus = inputs.prTitleRegExp
                 ? !(0, functions_1.validateRegex)(data.title, inputs.prTitleRegExp)
-                    ? core.setFailed('Pull Request Title RegExp - Failed')
-                    : core.info((0, functions_1.greenText)('- Pull Request Title RegExp - Passed'))
-                : core.debug((0, functions_1.yellowText)('Pull Request Title RegExp - Skipped'));
-            // Check if a pull request title starts with the provided prefix
-            inputs.prTitlePrefix
+                    ? (0, functions_1.setStatusObject)(false, `${msg} Failed`)
+                    : (0, functions_1.setStatusObject)(true, `${msg} Passed`)
+                : (0, functions_1.setStatusObject)(false, `${msg} Skipped`);
+            // Prefix
+            msg = 'Pull Request Title Prefix:';
+            const prTitlePrefixStatus = inputs.prTitlePrefix
                 ? !(0, functions_1.validatePrefix)(data.title, inputs.prTitlePrefix)
-                    ? core.setFailed('Pull Request Title RegExp - Failed')
-                    : core.info((0, functions_1.greenText)('- Pull Request Title Prefix - Passed'))
-                : core.debug((0, functions_1.yellowText)('Pull Request Title Prefix - Skipped'));
-            // Check if a pull request title is greater than the provided min length
-            inputs.prTitleMinLength
+                    ? (0, functions_1.setStatusObject)(false, `${msg} Failed`)
+                    : (0, functions_1.setStatusObject)(true, `${msg} Passed`)
+                : (0, functions_1.setStatusObject)(false, `${msg} Skipped`);
+            // Min Length
+            msg = 'Pull Request Title Min Length:';
+            const prTitleMinLenStatus = inputs.prTitleMinLength
                 ? !(0, functions_1.validateMinLength)(data.title, inputs.prTitleMinLength)
-                    ? core.setFailed('Pull Request Title Min Length - Failed')
-                    : core.info((0, functions_1.greenText)('- Pull Request Title Min Length - Passed'))
-                : core.debug((0, functions_1.yellowText)('Pull Request Title Min Length - Skipped'));
-            // Check if a pull request title is less than the provided max length
-            inputs.prTitleMaxLength
+                    ? (0, functions_1.setStatusObject)(false, `${msg} Failed`)
+                    : (0, functions_1.setStatusObject)(true, `${msg} Passed`)
+                : (0, functions_1.setStatusObject)(false, `${msg} Skipped`);
+            // Max Length
+            msg = 'Pull Request Title Max Length:';
+            const prTitleMaxLenStatus = inputs.prTitleMaxLength
                 ? !(0, functions_1.validateMaxLength)(data.title, inputs.prTitleMaxLength)
-                    ? core.setFailed('Pull Request Title Max Length - Failed')
-                    : core.info((0, functions_1.greenText)('- Pull Request Title Max Length - Passed'))
-                : core.debug((0, functions_1.yellowText)('Pull Request Title Max Length - Skipped'));
+                    ? (0, functions_1.setStatusObject)(false, `${msg} Failed`)
+                    : (0, functions_1.setStatusObject)(true, `${msg} Passed`)
+                : (0, functions_1.setStatusObject)(false, `${msg} Skipped`);
             core.debug('Fetching Commit Data');
             const { data: commits } = yield octokit.rest.pulls.listCommits(Object.assign({}, pullRequestData));
             core.debug('Generating commit message array');
@@ -159,35 +169,64 @@ function run() {
                     author: (_a = commit.author) === null || _a === void 0 ? void 0 : _a.login
                 });
             });
+            let commitMsgStatus = [];
             if (allPullRequestCommits.length > 0) {
                 allPullRequestCommits.map(commit => {
-                    core.info((0, functions_1.cyanText)(`Validating Commit Message -> ${commit.sha} ${commit.message}`));
-                    // Check if commit message matches the provied regular expression
-                    inputs.commitMessageRegExp
+                    // Regex
+                    let msg = `Commit (${commit.sha}) Message RegExp:`;
+                    const commitMsgRegExpStatus = inputs.commitMessageRegExp
                         ? !(0, functions_1.validateRegex)(commit.message, inputs.commitMessageRegExp)
-                            ? core.setFailed('Commit Message RegExp - Failed')
-                            : core.info((0, functions_1.greenText)('- Commit Message RegExp - Passed'))
-                        : core.debug((0, functions_1.yellowText)('Commit Message RegExp - Skipped'));
-                    // Check if commit message matches the provied prefix
-                    inputs.commitMessagePrefix
+                            ? (0, functions_1.setStatusObject)(false, `${msg} Failed`)
+                            : (0, functions_1.setStatusObject)(true, `${msg} Passed`)
+                        : (0, functions_1.setStatusObject)(false, `${msg} Skipped`);
+                    // Prefix
+                    msg = `Commit (${commit.sha}) Message Prefix:`;
+                    const commitMsgPrefixStatus = inputs.commitMessagePrefix
                         ? !(0, functions_1.validatePrefix)(commit.message, inputs.commitMessagePrefix)
-                            ? core.setFailed('Commit Message Prefix - Failed')
-                            : core.info((0, functions_1.greenText)('- Commit Message Prefix - Passed'))
-                        : core.debug((0, functions_1.yellowText)('Commit Message Prefix - Skipped'));
-                    // Check if commit message is greater than the provided min length
-                    inputs.commitMessageMinLength
+                            ? (0, functions_1.setStatusObject)(false, `${msg} Failed`)
+                            : (0, functions_1.setStatusObject)(true, `${msg} Passed`)
+                        : (0, functions_1.setStatusObject)(false, `${msg} Skipped`);
+                    // Min Length
+                    msg = `Commit (${commit.sha}) Message Min Length:`;
+                    const commitMsgMinLenStatus = inputs.commitMessageMinLength
                         ? !(0, functions_1.validateMinLength)(commit.message, inputs.commitMessageMinLength)
-                            ? core.setFailed('Commit Message Min Length - Failed')
-                            : core.info((0, functions_1.greenText)('- Commit Message Min Length - Passed'))
-                        : core.debug((0, functions_1.yellowText)('Commit Message Min Length - Skipped'));
-                    // Check if commit message is less than the provided max length
-                    inputs.commitMessageMaxLength
+                            ? (0, functions_1.setStatusObject)(false, `${msg} Failed`)
+                            : (0, functions_1.setStatusObject)(true, `${msg} Passed`)
+                        : (0, functions_1.setStatusObject)(false, `${msg} Skipped`);
+                    // Max Length
+                    msg = `Commit (${commit.sha}) Message Max Length:`;
+                    const commitMsgMaxLenStatus = inputs.commitMessageMaxLength
                         ? !(0, functions_1.validateMaxLength)(commit.message, inputs.commitMessageMaxLength)
-                            ? core.setFailed('Commit Message Max Length - Failed')
-                            : core.info((0, functions_1.greenText)('- Commit Message Max Length - Passed'))
-                        : core.debug((0, functions_1.yellowText)('Commit Message Max Length - Skipped'));
+                            ? (0, functions_1.setStatusObject)(false, `${msg} Failed`)
+                            : (0, functions_1.setStatusObject)(true, `${msg} Passed`)
+                        : (0, functions_1.setStatusObject)(false, `${msg} Skipped`);
+                    const tempCommitMsgStatus = [
+                        commitMsgRegExpStatus,
+                        commitMsgPrefixStatus,
+                        commitMsgMinLenStatus,
+                        commitMsgMaxLenStatus
+                    ];
+                    commitMsgStatus.push(...tempCommitMsgStatus);
                 });
             }
+            let status = [
+                prTitleRegExpStatus,
+                prTitlePrefixStatus,
+                prTitleMinLenStatus,
+                prTitleMaxLenStatus,
+                ...commitMsgStatus
+            ];
+            status.map(status => {
+                if (status.state === 'debug') {
+                    core.debug(status.message);
+                }
+                else if (status.state === false) {
+                    core.setFailed(status.message);
+                }
+                else {
+                    core.info(status.message);
+                }
+            });
         }
         catch (error) {
             if (error instanceof Error)
