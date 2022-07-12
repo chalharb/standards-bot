@@ -157,11 +157,63 @@ function run() {
                     ? (0, functions_1.setStatusObject)(false, `${msg} Failed`)
                     : (0, functions_1.setStatusObject)(true, `${msg} Passed`)
                 : (0, functions_1.setStatusObject)(false, `${msg} Skipped`);
+            core.debug('Fetching Commit Data');
+            const { data: commits } = yield octokit.rest.pulls.listCommits(Object.assign({}, pullRequestData));
+            core.debug('Generating commit message array');
+            // Generate an array of commits
+            const allPullRequestCommits = commits.map(commit => {
+                var _a;
+                return ({
+                    message: commit.commit.message,
+                    sha: commit.sha.substring(0, 7),
+                    author: (_a = commit.author) === null || _a === void 0 ? void 0 : _a.login
+                });
+            });
+            let commitMsgStatus = [];
+            if (allPullRequestCommits.length > 0) {
+                allPullRequestCommits.map(commit => {
+                    // Regex
+                    let msg = `Commit (${commit.sha}) Message RegExp:`;
+                    const commitMsgRegExpStatus = inputs.commitMessageRegExp
+                        ? !(0, functions_1.validateRegex)(commit.message, inputs.commitMessageRegExp)
+                            ? (0, functions_1.setStatusObject)(false, `${msg} Failed`)
+                            : (0, functions_1.setStatusObject)(true, `${msg} Passed`)
+                        : (0, functions_1.setStatusObject)(false, `${msg} Skipped`);
+                    // Prefix
+                    msg = `Commit (${commit.sha}) Message Prefix:`;
+                    const commitMsgPrefixStatus = inputs.commitMessagePrefix
+                        ? !(0, functions_1.validatePrefix)(commit.message, inputs.commitMessagePrefix)
+                            ? (0, functions_1.setStatusObject)(false, `${msg} Failed`)
+                            : (0, functions_1.setStatusObject)(true, `${msg} Passed`)
+                        : (0, functions_1.setStatusObject)(false, `${msg} Skipped`);
+                    // Min Length
+                    msg = `Commit (${commit.sha}) Message Min Length:`;
+                    const commitMsgMinLenStatus = inputs.commitMessageMinLength
+                        ? !(0, functions_1.validateMinLength)(commit.message, inputs.commitMessageMinLength)
+                            ? (0, functions_1.setStatusObject)(false, `${msg} Failed`)
+                            : (0, functions_1.setStatusObject)(true, `${msg} Passed`)
+                        : (0, functions_1.setStatusObject)(false, `${msg} Skipped`);
+                    // Max Length
+                    msg = `Commit (${commit.sha}) Message Max Length:`;
+                    const commitMsgMaxLenStatus = inputs.commitMessageMaxLength
+                        ? !(0, functions_1.validateMaxLength)(commit.message, inputs.commitMessageMaxLength)
+                            ? (0, functions_1.setStatusObject)(false, `${msg} Failed`)
+                            : (0, functions_1.setStatusObject)(true, `${msg} Passed`)
+                        : (0, functions_1.setStatusObject)(false, `${msg} Skipped`);
+                    commitMsgStatus = [
+                        commitMsgRegExpStatus,
+                        commitMsgPrefixStatus,
+                        commitMsgMinLenStatus,
+                        commitMsgMaxLenStatus
+                    ];
+                });
+            }
             let status = [
                 prTitleRegExpStatus,
                 prTitlePrefixStatus,
                 prTitleMinLenStatus,
-                prTitleMaxLenStatus
+                prTitleMaxLenStatus,
+                ...commitMsgStatus
             ];
             status.map(status => {
                 if (status.state === 'debug') {

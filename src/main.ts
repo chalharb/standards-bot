@@ -9,7 +9,7 @@ import {
   setStatusObject
 } from './functions'
 
-import {PullRequestData} from './types'
+import {PullRequestData, StatusObject} from './types'
 
 async function run(): Promise<void> {
   try {
@@ -93,11 +93,69 @@ async function run(): Promise<void> {
         : setStatusObject(true, `${msg} Passed`)
       : setStatusObject(false, `${msg} Skipped`)
 
-    let status = [
+    core.debug('Fetching Commit Data')
+    const {data: commits} = await octokit.rest.pulls.listCommits({
+      ...pullRequestData
+    })
+
+    core.debug('Generating commit message array')
+    // Generate an array of commits
+    const allPullRequestCommits = commits.map(commit => ({
+      message: commit.commit.message,
+      sha: commit.sha.substring(0, 7),
+      author: commit.author?.login
+    }))
+
+    let commitMsgStatus: StatusObject[] = []
+    if (allPullRequestCommits.length > 0) {
+      allPullRequestCommits.map(commit => {
+        // Regex
+        let msg = `Commit (${commit.sha}) Message RegExp:`
+        const commitMsgRegExpStatus = inputs.commitMessageRegExp
+          ? !validateRegex(commit.message, inputs.commitMessageRegExp)
+            ? setStatusObject(false, `${msg} Failed`)
+            : setStatusObject(true, `${msg} Passed`)
+          : setStatusObject(false, `${msg} Skipped`)
+
+        // Prefix
+        msg = `Commit (${commit.sha}) Message Prefix:`
+        const commitMsgPrefixStatus = inputs.commitMessagePrefix
+          ? !validatePrefix(commit.message, inputs.commitMessagePrefix)
+            ? setStatusObject(false, `${msg} Failed`)
+            : setStatusObject(true, `${msg} Passed`)
+          : setStatusObject(false, `${msg} Skipped`)
+
+        // Min Length
+        msg = `Commit (${commit.sha}) Message Min Length:`
+        const commitMsgMinLenStatus = inputs.commitMessageMinLength
+          ? !validateMinLength(commit.message, inputs.commitMessageMinLength)
+            ? setStatusObject(false, `${msg} Failed`)
+            : setStatusObject(true, `${msg} Passed`)
+          : setStatusObject(false, `${msg} Skipped`)
+
+        // Max Length
+        msg = `Commit (${commit.sha}) Message Max Length:`
+        const commitMsgMaxLenStatus = inputs.commitMessageMaxLength
+          ? !validateMaxLength(commit.message, inputs.commitMessageMaxLength)
+            ? setStatusObject(false, `${msg} Failed`)
+            : setStatusObject(true, `${msg} Passed`)
+          : setStatusObject(false, `${msg} Skipped`)
+
+        commitMsgStatus = [
+          commitMsgRegExpStatus,
+          commitMsgPrefixStatus,
+          commitMsgMinLenStatus,
+          commitMsgMaxLenStatus
+        ]
+      })
+    }
+
+    let status: StatusObject[] = [
       prTitleRegExpStatus,
       prTitlePrefixStatus,
       prTitleMinLenStatus,
-      prTitleMaxLenStatus
+      prTitleMaxLenStatus,
+      ...commitMsgStatus
     ]
 
     status.map(status => {
