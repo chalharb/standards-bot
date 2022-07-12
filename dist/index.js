@@ -126,9 +126,9 @@ function run() {
                 core.setFailed('Exiting: No GitHub Token provided');
                 return;
             }
-            const octokit = github.getOctokit(inputs.authToken);
+            const client = github.getOctokit(inputs.authToken);
             core.debug('Fetching Pull Request Data');
-            const { data } = yield octokit.rest.pulls.get(Object.assign({}, pullRequestData));
+            const { data } = yield client.rest.pulls.get(Object.assign({}, pullRequestData));
             // Regex
             let msg = 'Pull Request Title RegExp:';
             const prTitleRegExpStatus = inputs.prTitleRegExp
@@ -158,7 +158,7 @@ function run() {
                     : (0, functions_1.setStatusObject)(true, `${msg} Passed`)
                 : (0, functions_1.setStatusObject)(false, `${msg} Skipped`);
             core.debug('Fetching Commit Data');
-            const { data: commits } = yield octokit.rest.pulls.listCommits(Object.assign({}, pullRequestData));
+            const { data: commits } = yield client.rest.pulls.listCommits(Object.assign({}, pullRequestData));
             core.debug('Generating commit message array');
             // Generate an array of commits
             const allPullRequestCommits = commits.map(commit => {
@@ -226,6 +226,13 @@ function run() {
                 else {
                     core.info(status.message);
                 }
+            });
+            console.log(JSON.stringify(github.context));
+            yield client.rest.issues.createComment({
+                issue_number: github.context.issue.number,
+                owner: github.context.repo.owner,
+                repo: github.context.repo.repo,
+                body: '👋 Thanks for reporting!'
             });
         }
         catch (error) {
