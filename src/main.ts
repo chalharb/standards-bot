@@ -1,15 +1,12 @@
 import * as core from '@actions/core'
 import * as github from '@actions/github'
-import {Octokit} from '@octokit/rest'
 
 import {
   validateRegex,
   validatePrefix,
   validateMaxLength,
   validateMinLength,
-  cyanText,
-  greenText,
-  yellowText
+  setStatusObject
 } from './functions'
 
 import {PullRequestData} from './types'
@@ -26,8 +23,6 @@ async function run(): Promise<void> {
       return
     }
 
-    let pullRequestIssues: string[] = []
-    let commitMessageIssues: string[] = []
     const pullRequestPayload = github.context.payload.pull_request
 
     const pullRequestData: PullRequestData = {
@@ -66,134 +61,46 @@ async function run(): Promise<void> {
       ...pullRequestData
     })
 
-    core.info(cyanText(`Validating Pull Request Title -> ${data.title}`))
-    // Check if a pull request title matches the provied Regular Expression
-    inputs.prTitleRegExp
+    // Regex
+    let msg = 'Pull Request Title RegExp:'
+    const prTitleRegExpStatus = inputs.prTitleRegExp
       ? !validateRegex(data.title, inputs.prTitleRegExp)
-        ? (core.setFailed('Pull Request Title RegExp - Failed'),
-          pullRequestIssues.push(
-            `Does not match RegExp: ${inputs.prTitleRegExp}`
-          ))
-        : core.info(greenText('- Pull Request Title RegExp - Passed'))
-      : core.debug(yellowText('Pull Request Title RegExp - Skipped'))
+        ? setStatusObject(false, `${msg} Failed`)
+        : setStatusObject(true, `${msg} Passed`)
+      : setStatusObject(false, `${msg} Skipped`)
 
-    // Check if a pull request title starts with the provided prefix
-    inputs.prTitlePrefix
+    // Prefix
+    msg = 'Pull Request Title Prefix:'
+    const prTitlePrefixStatus = inputs.prTitlePrefix
       ? !validatePrefix(data.title, inputs.prTitlePrefix)
-        ? (core.setFailed('Pull Request Title Prefix - Failed'),
-          pullRequestIssues.push(
-            `Does not start with prefix: ${inputs.prTitlePrefix}`
-          ))
-        : core.info(greenText('- Pull Request Title Prefix - Passed'))
-      : core.debug(yellowText('Pull Request Title Prefix - Skipped'))
+        ? setStatusObject(false, `${msg} Failed`)
+        : setStatusObject(true, `${msg} Passed`)
+      : setStatusObject(false, `${msg} Skipped`)
 
-    // Check if a pull request title is greater than the provided min length
-    inputs.prTitleMinLength
+    // Min Length
+    msg = 'Pull Request Title Min Length:'
+    const prTitleMinLenStatus = inputs.prTitleMinLength
       ? !validateMinLength(data.title, inputs.prTitleMinLength)
-        ? (core.setFailed('Pull Request Title Min Length - Failed'),
-          pullRequestIssues.push(
-            `Is less than the minimum allowed length: ${inputs.prTitleMinLength}`
-          ))
-        : core.info(greenText('- Pull Request Title Min Length - Passed'))
-      : core.debug(yellowText('Pull Request Title Min Length - Skipped'))
+        ? setStatusObject(false, `${msg} Failed`)
+        : setStatusObject(true, `${msg} Passed`)
+      : setStatusObject(false, `${msg} Skipped`)
 
-    // Check if a pull request title is less than the provided max length
-    inputs.prTitleMaxLength
+    // Max Length
+    msg = 'Pull Request Title Max Length:'
+    const prTitleMaxLenStatus = inputs.prTitleMaxLength
       ? !validateMaxLength(data.title, inputs.prTitleMaxLength)
-        ? (core.setFailed('Pull Request Title Max Length - Failed'),
-          pullRequestIssues.push(
-            `Is greater than the maximum allowed length: ${inputs.prTitleMaxLength}`
-          ))
-        : core.info(greenText('- Pull Request Title Max Length - Passed'))
-      : core.debug(yellowText('Pull Request Title Max Length - Skipped'))
+        ? setStatusObject(false, `${msg} Failed`)
+        : setStatusObject(true, `${msg} Passed`)
+      : setStatusObject(false, `${msg} Skipped`)
 
-    core.debug('Fetching Commit Data')
-    const {data: commits} = await octokit.rest.pulls.listCommits({
-      ...pullRequestData
-    })
-
-    core.debug('Generating commit message array')
-    // Generate an array of commits
-    const allPullRequestCommits = commits.map(commit => ({
-      message: commit.commit.message,
-      sha: commit.sha.substring(0, 7),
-      author: commit.author?.login
-    }))
-
-    if (allPullRequestCommits.length > 0) {
-      allPullRequestCommits.map(commit => {
-        core.info(
-          cyanText(
-            `Validating Commit Message -> ${commit.sha} ${commit.message}`
-          )
-        )
-        // Check if commit message matches the provied regular expression
-        inputs.commitMessageRegExp
-          ? !validateRegex(commit.message, inputs.commitMessageRegExp)
-            ? (core.setFailed('Commit Message RegExp - Failed'),
-              commitMessageIssues.push(
-                `(${commit.sha}) ${commit.message} Does not match RegExp: ${inputs.commitMessageRegExp}`
-              ))
-            : core.info(greenText('- Commit Message RegExp - Passed'))
-          : core.debug(yellowText('Commit Message RegExp - Skipped'))
-
-        // Check if commit message matches the provied prefix
-        inputs.commitMessagePrefix
-          ? !validatePrefix(commit.message, inputs.commitMessagePrefix)
-            ? (core.setFailed('Commit Message Prefix - Failed'),
-              commitMessageIssues.push(
-                `(${commit.sha}) ${commit.message} Does not start with prefix: ${inputs.commitMessagePrefix}`
-              ))
-            : core.info(greenText('- Commit Message Prefix - Passed'))
-          : core.debug(yellowText('Commit Message Prefix - Skipped'))
-
-        // Check if commit message is greater than the provided min length
-        inputs.commitMessageMinLength
-          ? !validateMinLength(commit.message, inputs.commitMessageMinLength)
-            ? (core.setFailed('Commit Message Min Length - Failed'),
-              commitMessageIssues.push(
-                `(${commit.sha}) ${commit.message} Is less than the minimum allowed length: ${inputs.commitMessageMinLength}`
-              ))
-            : core.info(greenText('- Commit Message Min Length - Passed'))
-          : core.debug(yellowText('Commit Message Min Length - Skipped'))
-
-        // Check if commit message is less than the provided max length
-        inputs.commitMessageMaxLength
-          ? !validateMaxLength(commit.message, inputs.commitMessageMaxLength)
-            ? (core.setFailed('Commit Message Max Length - Failed'),
-              commitMessageIssues.push(
-                `(${commit.sha}) ${commit.message} Is greater than the maximum allowed length: ${inputs.commitMessageMaxLength}`
-              ))
-            : core.info(greenText('- Commit Message Max Length - Passed'))
-          : core.debug(yellowText('Commit Message Max Length - Skipped'))
-      })
+    let status = {
+      prTitleRegExpStatus,
+      prTitlePrefixStatus,
+      prTitleMinLenStatus,
+      prTitleMaxLenStatus
     }
 
-    core.info(JSON.stringify(pullRequestIssues))
-    core.info(JSON.stringify(commitMessageIssues))
-
-    const context = github.context
-    const test = new Octokit({
-      auth: inputs.authToken
-    })
-
-    const messageTemplate: string =
-      `## 🚨 Standards Bot 🚨 \n` +
-      `You have errors that need to be address before completing this pull request \n\n` +
-      `### Pull Request Title \n` +
-      `- Does not match RegExp: \`^(build|chore|feat|fix|docs|refactor|perf|style|test):\\s[A-Z]{1}\`` +
-      `- Does not start with prefix: \`build,chore,feat,fix,docs,refactor,perf,style,test\` \n\n` +
-      `### Commit Messages \n` +
-      `- 04ed740 Testing Commit message faiure \n` +
-      `  - Does not match RegExp: \`^(build|chore|feat|fix|docs|refactor|perf|style|test):\\s[A-Z]{1}\` \n` +
-      `- 04ed740 Testing Commit message faiure \n` +
-      `  - Does not start with prefix: \`build,chore,feat,fix,docs,refactor,perf,style,test\` \n`
-
-    await test.issues.createComment({
-      ...context.repo,
-      issue_number: pullRequestData.pull_number,
-      body: messageTemplate
-    })
+    console.log(JSON.stringify(status))
   } catch (error) {
     if (error instanceof Error) core.setFailed(error.message)
   }
